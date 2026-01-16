@@ -1,16 +1,59 @@
-# React + Vite
+# 🌾 AgriWise  
+### Multilingual Digital Marketplace & Decision Support Platform for Indian Farmers
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AgriWise is a **React + Vite based digital platform** designed to empower Indian farmers by providing a **multilingual marketplace and decision-support ecosystem**.  
+The platform enables **direct farmer–buyer interaction**, transparent pricing, and informed decision-making while reducing dependency on intermediaries.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Project Overview
 
-## React Compiler
+AgriWise connects farmers with buyers, cooperatives, and institutions through a structured digital marketplace.  
+It also provides **decision-support features** such as market price visibility, advisory insights, and government scheme awareness, with a strong focus on **usability and inclusivity**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🎯 Key Objectives
+- Enable direct farmer-to-buyer trade  
+- Improve price transparency and negotiation power  
+- Support multiple Indian languages  
+- Provide decision-support for better selling choices  
+- Promote farmer awareness and empowerment  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 👥 User Roles
+- **Farmer** – Manage profile, list crops, view prices, accept bids, receive payments  
+- **Buyer** – Search crops, place bids, create orders, make payments  
+- **Admin** – Verify users, monitor listings and orders, manage schemes and support  
+
+---
+
+## ✨ Core Features
+- Multilingual user interface  
+- Farmer onboarding and profile management  
+- Crop listing and digital marketplace  
+- Bidding and negotiation workflow  
+- Order and payment handling (conceptual)  
+- Support ticket and dispute resolution  
+- Government scheme awareness and advisory tips  
+
+---
+
+## 🧠 Decision Support Capabilities
+- Market price visibility  
+- Historical price insights (planned)  
+- Demand-based selling support  
+- Advisory recommendations for farmers  
+
+---
+
+## 🛠️ Technology Stack
+- **Frontend:** React.js  
+- **Build Tool:** Vite  
+- **Backend (Planned):** Node.js, Express.js  
+- **Database (Planned):** MongoDB  
+- **Architecture:** MERN Stack  
+- **Design & Modeling:** UML (Class Diagram, Activity Diagram)  
+
+---
