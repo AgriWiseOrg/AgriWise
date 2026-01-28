@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* Vite's #root element needs to fill the screen 
+  so Tailwind's centering classes work correctly.
+*/
+#root {
+  width: 100%;
+  height: 100%;
+}
