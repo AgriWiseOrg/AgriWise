@@ -6,6 +6,7 @@ require('dotenv').config();
 // 1. Initialize 'app' FIRST before using it for routes
 const app = express();
 const User = require('./models/User');
+const FoodProduct = require('./models/FoodProduct');
 
 // 2. Middleware
 app.use(cors());
@@ -44,6 +45,67 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(201).json({ message: "Registration successful!", user });
   } catch (error) {
     res.status(500).json({ error: 'Server error during registration' });
+  }
+});
+
+// 6. PRODUCT ROUTES
+
+// Create a new product
+app.post('/api/products', async (req, res) => {
+  const { name, price, description, imageUrl, farmerId } = req.body;
+  try {
+    const product = new FoodProduct({
+      name,
+      price,
+      description,
+      imageUrl,
+      farmer: farmerId
+    });
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(500).json({ error: 'Error creating product' });
+  }
+});
+
+// Get products for a specific farmer
+app.get('/api/products/:farmerId', async (req, res) => {
+  try {
+    const products = await FoodProduct.find({ farmer: req.params.farmerId }).sort({ createdAt: -1 });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching products' });
+  }
+});
+
+// Update a product
+app.put('/api/products/:id', async (req, res) => {
+  const { name, price, description, imageUrl } = req.body;
+  try {
+    const product = await FoodProduct.findByIdAndUpdate(
+      req.params.id,
+      { name, price, description, imageUrl },
+      { new: true }
+    );
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating product' });
+  }
+});
+
+// Delete a product
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const product = await FoodProduct.findByIdAndDelete(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting product' });
   }
 });
 

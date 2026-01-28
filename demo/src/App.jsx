@@ -12,10 +12,11 @@ import Weather from './components/Weather';
 import Suppport from './components/Suppport'; // Kept the typo to match your file name
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Renamed to 'user' for clarity, but 'isLoggedIn' logic can be derived from it.
+  const [user, setUser] = useState(null);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+  const handleLogin = (userData) => {
+    setUser(userData);
   };
 
   return (
@@ -23,17 +24,17 @@ function App() {
       <main className="antialiased text-gray-900">
         <Routes>
           {/* Login Route */}
-          <Route 
-            path="/login" 
-            element={!isLoggedIn ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />} 
+          <Route
+            path="/login"
+            element={!user ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />}
           />
 
           {/* Protected Routes - Only accessible if logged in */}
-          {isLoggedIn ? (
+          {user ? (
             <>
               <Route path="/" element={<FrontPage />} />
               <Route path="/market-prices" element={<MarketPrices />} />
-              <Route path="/my-crops" element={<MyCrops />} />
+              <Route path="/my-crops" element={<MyCrops user={user} />} />
               <Route path="/govt-schemes" element={<GovtSchemes />} />
               <Route path="/marketplace" element={<MarketPlace />} />
               <Route path="/weather" element={<Weather />} />
