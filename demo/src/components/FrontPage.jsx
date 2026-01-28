@@ -1,13 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const FrontPage = () => {
+  const navigate = useNavigate();
+
   const menuItems = [
-    { title: 'Market Prices', icon: '📈', desc: 'Check today’s rates', color: 'text-blue-600', bg: 'bg-blue-50' },
-    { title: 'My Crops', icon: '🌾', desc: 'Manage your farm', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { title: 'Govt Schemes', icon: '🏛️', desc: 'New subsidies alert', color: 'text-amber-600', bg: 'bg-amber-50' },
-    { title: 'Marketplace', icon: '🤝', desc: 'Buy & sell tools', color: 'text-purple-600', bg: 'bg-purple-50' },
-    { title: 'Weather', icon: '☀️', desc: 'Rain in 2 days', color: 'text-sky-600', bg: 'bg-sky-50' },
-    { title: 'Support', icon: '📞', desc: 'Talk to experts', color: 'text-rose-600', bg: 'bg-rose-50' },
+    { title: 'Market Prices', icon: '📈', desc: 'Check today’s rates', color: 'text-blue-600', bg: 'bg-blue-50', path: '/market-prices' },
+    { title: 'My Crops', icon: '🌾', desc: 'Manage your farm', color: 'text-emerald-600', bg: 'bg-emerald-50', path: '/my-crops' },
+    { title: 'Govt Schemes', icon: '🏛️', desc: 'New subsidies alert', color: 'text-amber-600', bg: 'bg-amber-50', path: '/govt-schemes' },
+    { title: 'Marketplace', icon: '🤝', desc: 'Buy & sell tools', color: 'text-purple-600', bg: 'bg-purple-50', path: '/marketplace' },
+    { title: 'Weather', icon: '☀️', desc: 'Rain in 2 days', color: 'text-sky-600', bg: 'bg-sky-50', path: '/weather' },
+    { title: 'Support', icon: '📞', desc: 'Talk to experts', color: 'text-rose-600', bg: 'bg-rose-50', path: '/support' },
   ];
 
   return (
@@ -30,7 +33,6 @@ const FrontPage = () => {
         
         {/* Responsive Grid for Header Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Search Bar - Spans 2 columns on desktop */}
           <div className="lg:col-span-2 relative">
             <input 
               type="text" 
@@ -40,7 +42,6 @@ const FrontPage = () => {
             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl">🔍</span>
           </div>
 
-          {/* Quick Stats / Info - Hidden on mobile, visible on desktop */}
           <div className="hidden lg:flex items-center justify-around bg-white border border-slate-200 rounded-3xl p-4 shadow-sm">
             <div className="text-center"><p className="text-xs text-slate-400 font-bold">TEMP</p><p className="font-black text-xl">28°C</p></div>
             <div className="h-8 w-[1px] bg-slate-100"></div>
@@ -58,11 +59,12 @@ const FrontPage = () => {
           <div className="absolute -right-10 -bottom-10 text-[12rem] opacity-10 group-hover:scale-110 transition-transform duration-700 select-none">🚜</div>
         </div>
 
-        {/* Dynamic Action Grid: 1 col on mobile, 2 on tablet, 3 on desktop */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Dynamic Action Grid */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32">
           {menuItems.map((item, index) => (
             <button 
               key={index} 
+              onClick={() => navigate(item.path)}
               className="group flex items-center gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 transition-all text-left"
             >
               <div className={`${item.bg} h-20 w-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 group-hover:rotate-12 transition-transform shadow-inner`}>
@@ -77,13 +79,13 @@ const FrontPage = () => {
         </section>
       </main>
 
-      {/* Bottom Nav - Desktop Sidebar or Floating Bottom Bar */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4 sm:px-0">
+      {/* Bottom Nav */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4 sm:px-0 z-50">
         <div className="bg-slate-900/95 backdrop-blur-md text-white rounded-full py-4 px-10 flex justify-between items-center shadow-2xl border border-white/10">
-          <button className="text-emerald-400 hover:scale-110 transition-transform">🏠</button>
-          <button className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">📦</button>
+          <button onClick={() => navigate('/')} className="text-emerald-400 hover:scale-110 transition-transform">🏠</button>
+          <button onClick={() => navigate('/marketplace')} className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">📦</button>
           <button className="bg-emerald-500 hover:bg-emerald-400 p-4 rounded-full -mt-16 border-[6px] border-slate-50 shadow-lg transition-all active:scale-90 text-2xl">➕</button>
-          <button className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">💬</button>
+          <button onClick={() => navigate('/support')} className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">💬</button>
           <button className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">👤</button>
         </div>
       </div>
