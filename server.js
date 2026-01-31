@@ -3,112 +3,79 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-// 1. Initialize 'app' FIRST before using it for routes
 const app = express();
 const User = require('./models/User');
 const FoodProduct = require('./models/FoodProduct');
 
-// 2. Middleware
+// ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
 
-// 3. Database Connection
+// ================= DATABASE =================
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('🍃 Connected to Local MongoDB (Compass)'))
+  .then(() => console.log('🍃 MongoDB Connected Successfully'))
   .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
-// 4. LOGIN ROUTE: Only allows existing users
-app.post('/api/auth/login', async (req, res) => {
-  const { phoneNumber } = req.body;
+// ================= REGISTER =================
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password, role } = req.body;
+
   try {
-    const user = await User.findOne({ phoneNumber });
-    if (!user) {
-      // Epic 2: Strict login requirement
-      return res.status(404).json({ error: "No account found with this number. Please register first." });
+    // 1. Check if email exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
     }
-    res.status(200).json({ user });
+
+    // 2. Create user (Force role to lowercase to match Schema enum)
+    const user = new User({
+      email,
+      password, // Note: In a real app, hash this with bcrypt!
+      role: role.toLowerCase() 
+    });
+
+    await user.save();
+    console.log('✅ New User Registered:', email);
+
+    res.status(201).json({
+      message: 'Registration successful',
+      user: { id: user._id, email: user.email, role: user.role }
+    });
+
   } catch (error) {
+    console.error('❌ Registration Error details:', error);
+    res.status(500).json({ error: error.message || 'Server error during registration' });
+  }
+});
+
+// ================= LOGIN =================
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    res.status(200).json({
+      user: { id: user._id, email: user.email, role: user.role }
+    });
+
+  } catch (error) {
+    console.error('❌ Login Error:', error);
     res.status(500).json({ error: 'Server error during login' });
   }
 });
 
-// 5. REGISTER ROUTE: Creates a new user
-app.post('/api/auth/register', async (req, res) => {
-  const { phoneNumber } = req.body;
-  try {
-    const existingUser = await User.findOne({ phoneNumber });
-    if (existingUser) {
-      return res.status(400).json({ error: "This number is already registered. Try logging in." });
-    }
-    const user = new User({ phoneNumber });
-    await user.save();
-    res.status(201).json({ message: "Registration successful!", user });
-  } catch (error) {
-    res.status(500).json({ error: 'Server error during registration' });
-  }
-});
+// ... Keep your existing Product routes below ...
 
-// 6. PRODUCT ROUTES
-
-// Create a new product
-app.post('/api/products', async (req, res) => {
-  const { name, price, description, imageUrl, farmerId } = req.body;
-  try {
-    const product = new FoodProduct({
-      name,
-      price,
-      description,
-      imageUrl,
-      farmer: farmerId
-    });
-    await product.save();
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(500).json({ error: 'Error creating product' });
-  }
-});
-
-// Get products for a specific farmer
-app.get('/api/products/:farmerId', async (req, res) => {
-  try {
-    const products = await FoodProduct.find({ farmer: req.params.farmerId }).sort({ createdAt: -1 });
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching products' });
-  }
-});
-
-// Update a product
-app.put('/api/products/:id', async (req, res) => {
-  const { name, price, description, imageUrl } = req.body;
-  try {
-    const product = await FoodProduct.findByIdAndUpdate(
-      req.params.id,
-      { name, price, description, imageUrl },
-      { new: true }
-    );
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-    res.status(200).json(product);
-  } catch (error) {
-    res.status(500).json({ error: 'Error updating product' });
-  }
-});
-
-// Delete a product
-app.delete('/api/products/:id', async (req, res) => {
-  try {
-    const product = await FoodProduct.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-    res.status(200).json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error deleting product' });
-  }
-});
-
-// 6. Start Server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
