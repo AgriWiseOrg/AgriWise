@@ -68,6 +68,8 @@ function App() {
               <Route path="/schemes/tips" element={<FarmingTips />} />
               <Route path="/schemes/finance" element={<Finance />} />
               <Route path="/schemes/updates" element={<LatestUpdates />} />
+
+              {/* AI Prediction */}
             </>
           ) : (
             <Route path="*" element={<Navigate to="/login" />} />
