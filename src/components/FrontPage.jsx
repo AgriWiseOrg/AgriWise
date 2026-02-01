@@ -30,13 +30,13 @@ const FrontPage = () => {
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-        
+
         {/* Responsive Grid for Header Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 relative">
-            <input 
-              type="text" 
-              placeholder="Search crops, schemes, or tools..." 
+            <input
+              type="text"
+              placeholder="Search crops, schemes, or tools..."
               className="w-full bg-white border border-slate-200 rounded-3xl py-4 px-12 shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
             />
             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl">🔍</span>
@@ -62,8 +62,8 @@ const FrontPage = () => {
         {/* Dynamic Action Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32">
           {menuItems.map((item, index) => (
-            <button 
-              key={index} 
+            <button
+              key={index}
               onClick={() => navigate(item.path)}
               className="group flex items-center gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 transition-all text-left"
             >
