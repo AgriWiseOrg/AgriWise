@@ -11,11 +11,14 @@ import MarketPlace from './components/MarketPlace';
 import Weather from './components/Weather';
 import Suppport from './components/Suppport';
 
-// Epic 6: Govt Schemes Subpages (New Imports)
+// Epic 6: Govt Schemes Subpages
 import FarmingTips from './components/GovtSchemes/FarmingTips';
-import Finance from './components/GovtSchemes/Finance_farmer';
 import LatestUpdates from './components/GovtSchemes/LatestUpdates';
 import SchemeList from './components/GovtSchemes/SchemeList';
+
+// RBAC Components
+import FinanceAdmin from './components/GovtSchemes/Finance_admin'; 
+import FinanceFarmer from './components/GovtSchemes/Finance_farmer';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -66,10 +69,17 @@ function App() {
               {/* Govt Schemes Sub-Routes (Epic 6) */}
               <Route path="/schemes/list" element={<SchemeList />} />
               <Route path="/schemes/tips" element={<FarmingTips />} />
-              <Route path="/schemes/finance" element={<Finance />} />
               <Route path="/schemes/updates" element={<LatestUpdates />} />
 
-              {/* AI Prediction */}
+              {/* Logic: If role is admin, show Admin UI, else show Farmer UI */}
+              <Route 
+                path="/schemes/finance" 
+                element={
+                  user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer />
+                } 
+              />
+
+              {/* AI Prediction Placeholder */}
             </>
           ) : (
             <Route path="*" element={<Navigate to="/login" />} />
