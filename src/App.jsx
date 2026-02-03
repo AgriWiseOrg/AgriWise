@@ -10,6 +10,7 @@ import GovtSchemes from './components/GovtSchemes';
 import MarketPlace from './components/MarketPlace';
 import Weather from './components/Weather';
 import Suppport from './components/Suppport';
+import ProductDetails from './components/ProductDetails';
 
 // Epic 6: Govt Schemes Subpages (New Imports)
 import FarmingTips from './components/GovtSchemes/FarmingTips';
@@ -60,6 +61,7 @@ function App() {
               <Route path="/my-crops" element={<MyCrops user={user} />} />
               <Route path="/govt-schemes" element={<GovtSchemes />} />
               <Route path="/marketplace" element={<MarketPlace />} />
+               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/weather" element={<Weather />} />
               <Route path="/support" element={<Suppport />} />
 
