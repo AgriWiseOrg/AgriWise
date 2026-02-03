@@ -8,10 +8,14 @@ const app = express();
 const User = require('./models/User');
 const FoodProduct = require('./models/FoodProduct');
 
+
+const schemeRoutes = require('./routes/schemes');
+
 // ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/schemes', schemeRoutes);
 // ================= DATABASE =================
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('🍃 MongoDB Connected Successfully'))
