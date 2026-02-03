@@ -13,7 +13,7 @@ import Suppport from './components/Suppport';
 
 // Epic 6: Govt Schemes Subpages (New Imports)
 import FarmingTips from './components/GovtSchemes/FarmingTips';
-import Finance from './components/GovtSchemes/Finance';
+import Finance from './components/GovtSchemes/Finance_farmer';
 import LatestUpdates from './components/GovtSchemes/LatestUpdates';
 import SchemeList from './components/GovtSchemes/SchemeList';
 
