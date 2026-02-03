@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const FrontPage = () => {
+const FrontPage = ({ onLogout }) => { // Added onLogout prop
   const navigate = useNavigate();
 
   const menuItems = [
@@ -22,9 +22,21 @@ const FrontPage = () => {
             <h2 className="text-xl md:text-2xl font-black text-emerald-700 tracking-tight">AgriWise</h2>
             <p className="text-[10px] md:text-xs text-slate-400 font-medium uppercase tracking-widest">Farmer Dashboard</p>
           </div>
-          <button className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-slate-700 font-bold text-sm border border-slate-200 transition-colors">
-            🌐 <span className="hidden sm:inline">English</span>
-          </button>
+          
+          {/* Right Side Buttons */}
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-slate-700 font-bold text-sm border border-slate-200 transition-colors">
+              🌐 <span className="hidden sm:inline">English</span>
+            </button>
+            
+            {/* Added Logout Button */}
+            <button 
+              onClick={onLogout}
+              className="bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl text-red-600 font-bold text-sm border border-red-100 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </nav>
 
