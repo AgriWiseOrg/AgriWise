@@ -11,6 +11,7 @@ const User = require('./models/User');
 const FoodProduct = require('./models/FoodProduct');
 const MarketPrice = require('./models/MarketPrice');
 const DemandForecast = require('./models/DemandForecast');
+const PredictionModel = require('./models/PredictionModel');
 
 // ================= ROUTE IMPORTS =================
 const schemeRoutes = require('./routes/schemes');
@@ -83,33 +84,95 @@ app.post('/api/auth/login', async (req, res) => {
 
 // ================= AI PRICE PREDICTION =================
 
-app.post('/api/predict-price', (req, res) => {
+app.post('/api/predict-price', async (req, res) => {
   const { product, region, month } = req.body;
 
-  const basePrices = {
-    'Wheat': 25, 'Rice': 40, 'Corn': 20, 'Potato': 15,
-    'Tomato': 30, 'Onion': 25, 'Soybean': 45
-  };
+  try {
+    // 1. Check for existing trained model
+    let model = await PredictionModel.findOne({ crop: product });
+    const now = new Date();
 
-  const productBase = basePrices[product] || 30;
-  const monthIndex = month ? new Date(Date.parse(month + " 1, 2023")).getMonth() : 0;
-  const seasonalFactor = 1 + (Math.sin(monthIndex) * 0.1);
-  const regionHash = region ? region.length : 5;
-  const regionFactor = 1 + ((regionHash % 5) * 0.05);
-  const volatility = 0.9 + Math.random() * 0.2;
+    // 2. Retrain if missing or stale (> 24 hours)
+    if (!model || (now - new Date(model.lastTrained) > 24 * 60 * 60 * 1000)) {
+      console.log(`🧠 Training model for ${product}...`);
 
-  let predictedPrice = Math.round((productBase * seasonalFactor * regionFactor * volatility) * 100) / 100;
-  const confidence = 85 + Math.floor(Math.random() * 14);
+      // Fetch history
+      const history = await MarketPrice.find({ crop: product }).sort({ date: 1 });
 
-  setTimeout(() => {
+      if (history.length < 2) {
+        // Fallback if not enough data
+        return res.json({
+          product,
+          predictedPrice: 0,
+          currency: 'INR',
+          confidence: '0% (Insufficient Data)',
+          factors: { note: 'Need at least 2 historical records to predict.' }
+        });
+      }
+
+      // Prepare data for Linear Regression
+      // X = Time (timestamp), Y = Price
+      const n = history.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+
+      history.forEach(record => {
+        const x = new Date(record.date).getTime();
+        const y = record.price;
+        sumX += x;
+        sumY += y;
+        sumXY += (x * y);
+        sumX2 += (x * x);
+      });
+
+      // Least Squares Calculation
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+
+      // Save/Update Model
+      if (!model) {
+        model = new PredictionModel({ crop: product, slope, intercept, sampleSize: n });
+      } else {
+        model.slope = slope;
+        model.intercept = intercept;
+        model.sampleSize = n;
+        model.lastTrained = now;
+      }
+      await model.save();
+    }
+
+    // 3. Predict Code
+    // Convert target month to future timestamp
+    // Assuming prediction is for current year if month is passed, or next available
+    const targetDateStr = `${month} 1, ${new Date().getFullYear()}`;
+    let targetTime = new Date(targetDateStr).getTime();
+
+    // If month passed is in the past for this year, assume the user means NEXT year
+    if (targetTime < Date.now()) {
+      targetTime = new Date(`${month} 1, ${new Date().getFullYear() + 1}`).getTime();
+    }
+
+    const predictedPriceRaw = model.slope * targetTime + model.intercept;
+    const predictedPrice = Math.max(0, Math.round(predictedPriceRaw * 100) / 100); // No negative prices
+
+    // Confidence heuristic based on sample size
+    let confidence = Math.min(95, 50 + (model.sampleSize * 2));
+
     res.json({
       product,
       predictedPrice,
       currency: 'INR',
       confidence: `${confidence}%`,
-      factors: { seasonality: 'High Demand', transport: 'Normal' }
+      factors: {
+        trend: model.slope > 0 ? 'Increasing' : 'Decreasing',
+        sampleSize: model.sampleSize,
+        lastTrained: model.lastTrained
+      }
     });
-  }, 1000);
+
+  } catch (error) {
+    console.error('Prediction Error:', error);
+    res.status(500).json({ error: 'Prediction failed' });
+  }
 });
 
 // ================= MARKET DATA ENDPOINTS =================
@@ -170,6 +233,7 @@ app.get('/api/market/demand', async (req, res) => {
   }
 });
 
+<<<<<<< Updated upstream
 // Cart Routes
 app.use('/api/cart', cartRoutes);
 
@@ -177,6 +241,99 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/products', productRoutes);
 
 
+=======
+// 4. 30-Day Price Forecast
+app.get('/api/market/forecast-30-days', async (req, res) => {
+  const { crop } = req.query;
+  if (!crop) return res.status(400).json({ error: 'Crop parameter required' });
+
+  try {
+    // 1. Check for existing trained model
+    let model = await PredictionModel.findOne({ crop });
+    const now = new Date();
+
+    // 2. Train if missing or stale (Copied logic from predict-price for safety)
+    if (!model || (now - new Date(model.lastTrained) > 24 * 60 * 60 * 1000)) {
+      // Fetch history
+      const history = await MarketPrice.find({ crop }).sort({ date: 1 });
+      if (history.length >= 2) {
+        const n = history.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        history.forEach(record => {
+          const x = new Date(record.date).getTime();
+          const y = record.price;
+          sumX += x;
+          sumY += y;
+          sumXY += (x * y);
+          sumX2 += (x * x);
+        });
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+
+        if (!model) {
+          model = new PredictionModel({ crop, slope, intercept, sampleSize: n });
+        } else {
+          model.slope = slope;
+          model.intercept = intercept;
+          model.sampleSize = n;
+          model.lastTrained = now;
+        }
+        await model.save();
+      }
+    }
+
+    if (!model) {
+      // Return empty if we still don't have a model (e.g. no history data)
+      return res.json({ crop, data: [], note: 'Insufficient data to forecast' });
+    }
+
+    // 3. Generate 30-day forecast with Sine Wave + Randomness
+    const forecastData = [];
+    let currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1);
+
+    // Random parameters for sine wave to ensure uniqueness per request/crop
+    // Reduced volatility as per user request (2% to 5%)
+    const volatility = 0.02 + Math.random() * 0.03;
+    const waveFrequency = 0.1 + Math.random() * 0.2; // How fast it oscillates
+    const waveAmplitude = 100 + Math.random() * 200; // Height of peaks (₹100-300)
+    const phaseShift = Math.random() * Math.PI * 2; // Random start point in wave
+
+    for (let i = 0; i < 30; i++) {
+      const time = currentDate.getTime();
+      const linearTrend = model.slope * time + model.intercept;
+
+      // Cyclic seasonality (Sine wave)
+      const seasonality = waveAmplitude * Math.sin((waveFrequency * i) + phaseShift);
+
+      // Reduced Random Noise (Multiplier 0.5)
+      const noise = linearTrend * volatility * (Math.random() - 0.5) * 0.5;
+
+      // Combined price
+      let priceRaw = linearTrend + seasonality + noise;
+
+      // Ensure positive price
+      const predictedPrice = Math.max(0, Math.round(priceRaw * 100) / 100);
+
+      forecastData.push({
+        date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
+        price: predictedPrice
+      });
+
+      // Next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+
+    res.json({ crop, data: forecastData });
+
+  } catch (error) {
+    console.error('Forecast Error:', error);
+    res.status(500).json({ error: 'Failed to generate forecast' });
+  }
+});
+
+>>>>>>> Stashed changes
 // ================= SERVER START =================
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () =>

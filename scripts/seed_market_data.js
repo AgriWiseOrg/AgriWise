@@ -32,7 +32,8 @@ const seedData = async () => {
 
                 // Random fluctuation
                 let fluctuation = (Math.random() * 400) - 200;
-                let price = Math.round(basePrice + (i * 50) + fluctuation); // Trend: generally increasing backwards or forwards
+                // Correct trend: prices should ideally go UP over time (so LOWER in the past)
+                let price = Math.round(basePrice - (i * 50) + fluctuation);
 
                 priceDocs.push({
                     crop,
