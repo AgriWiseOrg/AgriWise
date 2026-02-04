@@ -2,12 +2,15 @@ const mongoose = require('mongoose');
 
 const SchemeSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  type: { type: String, required: true }, // e.g., "Govt Loan", "Subsidy"
-  interest: { type: String, required: true },
-  tag: { type: String }, // e.g., "Most Popular"
-  color: { type: String, default: "indigo" }, // matches your frontend CSS
+  benefit: { type: String }, // e.g., "₹6,000/year"
+  minLand: { type: Number },
+  maxLand: { type: Number },
+  type: { type: String }, // Optional compatibility
+  interest: { type: String }, // Optional compatibility
+  tag: { type: String },
+  color: { type: String, default: "emerald" },
   description: { type: String },
-  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Tracks which admin added it
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Scheme', SchemeSchema);
