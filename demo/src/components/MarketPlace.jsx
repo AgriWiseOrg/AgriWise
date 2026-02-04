@@ -8,11 +8,13 @@ import {
   Star, 
   Phone, 
   TrendingUp, 
-  X,
   ArrowLeft,
-  ShoppingCart 
+  ShoppingCart,
+  ChevronRight,
+  PackageCheck,
+  Store
 } from "lucide-react";
-import { useCart } from "./CartContext"; // 1. IMPORT YOUR CART CONTEXT
+import { useCart } from "./CartContext"; 
 
 const getCropImage = (crop) => {
   const images = {
@@ -25,7 +27,7 @@ const getCropImage = (crop) => {
 
 const Marketplace = () => {
   const navigate = useNavigate();
-  const { addToCart } = useCart(); // 2. ACCESS THE ADDTOCART FUNCTION
+  const { addToCart, totalItems } = useCart(); 
   
   const [products] = useState([
     { id: 1, crop: "Rice", price: 2200, quantity: 50, location: "Kerala", farmer: "Ramesh", rating: 4.5 },
@@ -39,7 +41,6 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sortBy, setSortBy] = useState("featured");
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   let filtered = products.filter((p) => {
     const matchesLocation = locationFilter === "" || p.location.toLowerCase().includes(locationFilter.toLowerCase());
@@ -53,154 +54,199 @@ const Marketplace = () => {
   else if (sortBy === "rating") filtered.sort((a, b) => b.rating - a.rating);
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-800">
-      <nav className="bg-emerald-700 text-white shadow-md sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/')} className="p-2 -ml-2 hover:bg-emerald-600 rounded-full transition-all">
-              <ArrowLeft size={24} />
+    <div className="bg-[#F8FAF9] min-h-screen font-sans text-slate-900 pb-10">
+      {/* --- Premium Navbar --- */}
+      <nav className="bg-emerald-900 text-white shadow-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => navigate('/')} 
+              className="p-2 hover:bg-emerald-800 rounded-xl transition-all border border-emerald-800"
+            >
+              <ArrowLeft size={20} />
             </button>
             <div className="flex items-center gap-2">
-              <TrendingUp size={24} />
-              <h1 className="text-xl font-bold tracking-tight">AgriMarket</h1>
+              <div className="bg-emerald-500 p-1.5 rounded-lg">
+                <Store size={22} className="text-white" />
+              </div>
+              <h1 className="text-xl font-black tracking-tight uppercase">Agri<span className="text-emerald-400">Market</span></h1>
             </div>
           </div>
-          <div className="hidden md:flex bg-emerald-800 rounded-full px-4 py-2 items-center w-1/3 border border-emerald-600 focus-within:ring-2 ring-emerald-400 transition-all">
-            <Search size={18} className="text-emerald-300 mr-2" />
+
+          <div className="hidden md:flex bg-emerald-950/50 rounded-2xl px-5 py-2.5 items-center w-2/5 border border-emerald-800 focus-within:border-emerald-400 transition-all shadow-inner">
+            <Search size={18} className="text-emerald-500 mr-3" />
             <input 
               type="text" 
               placeholder="Search crops or farmers..." 
-              className="bg-transparent outline-none w-full text-sm placeholder-emerald-300/70 text-white"
+              className="bg-transparent outline-none w-full text-sm placeholder-emerald-700 text-emerald-50"
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <button 
-            onClick={() => navigate('/cart')} 
-            className="p-2 hover:bg-emerald-600 rounded-full transition-all relative"
-          >
-            <ShoppingCart size={24} />
-          </button>
-
-          <button className="md:hidden p-2" onClick={() => setIsMobileFilterOpen(true)}>
-            <Filter />
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/cart')} 
+              className="p-3 bg-emerald-800 hover:bg-emerald-700 rounded-2xl transition-all relative border border-emerald-700 shadow-lg"
+            >
+              <ShoppingCart size={22} />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-emerald-900 animate-pulse">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-8">
-        <aside className="w-64 flex-shrink-0 hidden md:block">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 sticky top-24">
-            <div className="flex items-center gap-2 mb-6">
-              <Filter size={20} className="text-emerald-600" />
-              <h3 className="font-bold text-lg">Filters</h3>
+      <div className="max-w-7xl mx-auto p-4 md:p-8 flex flex-col md:flex-row gap-10">
+        {/* --- Sidebar Filters --- */}
+        <aside className="w-full md:w-72 flex-shrink-0">
+          <div className="bg-white p-7 rounded-[2.5rem] shadow-sm border border-emerald-100 sticky top-28">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-emerald-50 rounded-xl">
+                <Filter size={20} className="text-emerald-700" />
+              </div>
+              <h3 className="font-black text-slate-800 uppercase tracking-widest text-sm">Market Filters</h3>
             </div>
-            <div className="space-y-6">
+            
+            <div className="space-y-8">
               <div>
-                <label className="text-xs font-semibold uppercase text-slate-400 mb-2 block">Location</label>
-                <div className="relative">
-                  <MapPin size={16} className="absolute left-3 top-3 text-slate-400" />
+                <label className="text-[10px] font-black uppercase text-emerald-800 mb-3 block tracking-widest">Region / State</label>
+                <div className="relative group">
+                  <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600" />
                   <input
                     type="text"
-                    placeholder="e.g. Punjab"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="e.g. Kerala"
+                    className="w-full bg-emerald-50/50 border border-emerald-100 rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                     onChange={(e) => setLocationFilter(e.target.value)}
                   />
                 </div>
               </div>
+
               <div>
-                <label className="text-xs font-semibold uppercase text-slate-400 mb-2 block">Max Price (₹)</label>
+                <label className="text-[10px] font-black uppercase text-emerald-800 mb-3 block tracking-widest">Max Budget</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-slate-400 text-sm">₹</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700 font-bold">₹</span>
                   <input
                     type="number"
-                    placeholder="2500"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Enter amount"
+                    className="w-full bg-emerald-50/50 border border-emerald-100 rounded-2xl pl-9 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                     onChange={(e) => setMaxPrice(e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="pt-4 border-t border-emerald-50">
+                 <div className="bg-emerald-900 rounded-2xl p-4 text-white">
+                    <TrendingUp className="text-emerald-400 mb-2" size={20} />
+                    <p className="text-xs font-medium opacity-80 leading-relaxed">Wheat prices are predicted to rise by 4% this week.</p>
+                 </div>
               </div>
             </div>
           </div>
         </aside>
 
+        {/* --- Product Grid --- */}
         <main className="flex-1">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className="text-2xl font-bold text-slate-800">
-              Fresh Produce <span className="text-slate-400 font-normal text-lg">({filtered.length} results)</span>
-            </h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
+            <div>
+              <h2 className="text-3xl font-black text-emerald-900 tracking-tight">Verified Harvests</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <p className="text-slate-500 text-sm font-medium">{filtered.length} products available</p>
+              </div>
+            </div>
+
+            <select
+              className="bg-white border-2 border-emerald-50 px-5 py-3 rounded-2xl text-sm font-bold text-emerald-900 outline-none shadow-sm hover:border-emerald-200"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="featured">✨ Featured Selection</option>
+              <option value="priceLow">📉 Price: Low to High</option>
+              <option value="priceHigh">📈 Price: High to Low</option>
+              <option value="rating">⭐️ Highest Farmer Rating</option>
+            </select>
           </div>
 
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
               {filtered.map((p) => {
                 const productImg = getCropImage(p.crop);
                 return (
                   <motion.div
                     layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     key={p.id}
-                    className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                    className="bg-white rounded-[2.5rem] shadow-sm border border-emerald-50 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group flex flex-col"
                   >
-                    <div className="h-48 overflow-hidden relative">
+                    <div className="h-52 overflow-hidden relative">
                       <img 
                         src={productImg} 
                         alt={p.crop} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-emerald-700 flex items-center gap-1 shadow-sm">
-                        <Star size={12} className="fill-emerald-600 text-emerald-600" /> {p.rating}
+                      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-2xl text-xs font-black text-emerald-800 flex items-center gap-1.5 shadow-xl">
+                        <Star size={14} className="fill-emerald-500 text-emerald-500" /> {p.rating}
+                      </div>
+                      <div className="absolute bottom-4 left-4 bg-emerald-900/80 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] font-bold text-white uppercase tracking-widest">
+                        New Batch
                       </div>
                     </div>
 
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-bold text-lg text-slate-800">{p.crop}</h3>
-                          <div className="flex items-center text-xs text-slate-500 mt-1">
-                            <MapPin size={12} className="mr-1" /> {p.location}
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="space-y-0.5">
+                          <h3 className="font-black text-xl text-emerald-900 capitalize tracking-tight">{p.crop}</h3>
+                          <div className="flex items-center text-[11px] text-slate-400 font-bold uppercase tracking-wider">
+                            <MapPin size={12} className="mr-1 text-emerald-500" /> {p.location}
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-emerald-700 font-bold text-lg">₹{p.price}</p>
-                          <p className="text-[10px] text-slate-400 uppercase">per quintal</p>
+                          <p className="text-emerald-700 font-black text-2xl tracking-tighter">₹{p.price}</p>
+                          <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Quintal</p>
                         </div>
                       </div>
 
-                      <div className="my-3 pt-3 border-t border-slate-50 flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs uppercase">
-                                  {p.farmer[0]}
-                              </div>
-                              <span className="text-slate-600">{p.farmer}</span>
-                          </div>
-                          <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium">
-                              {p.quantity} qtl left
-                          </span>
-                      </div>
+                      <div className="mt-auto">
+                        <div className="py-4 border-t border-emerald-50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700 font-black text-sm border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                                    {p.farmer[0]}
+                                </div>
+                                <div className="leading-tight">
+                                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Farmer</p>
+                                  <span className="text-slate-800 font-black text-sm">{p.farmer}</span>
+                                </div>
+                            </div>
+                            <div className="text-right leading-tight">
+                               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Stock</p>
+                               <span className="text-emerald-600 font-black text-xs">{p.quantity} qtl</span>
+                            </div>
+                        </div>
 
-                      <div className="flex gap-2 mt-4">
-                        <button
-                          onClick={() => navigate(`/product/${p.id}`, { state: { ...p, imageUrl: productImg } })}
-                          className="flex-1 bg-white border border-slate-200 py-2 rounded-lg font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-all active:scale-95"
-                        >
-                          View Details
-                        </button> 
-                        
-                        {/* 3. UPDATED BUTTON: Calls addToCart from Context */}
-                        <button 
-                          onClick={() => addToCart({ ...p, imageUrl: productImg })}
-                          className="px-3 bg-emerald-600 border border-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center shadow-sm"
-                          title="Add to Cart"
-                        >
-                          <ShoppingCart size={18} />
-                        </button>
+                        <div className="flex gap-2.5 mt-2">
+                          <button
+                            onClick={() => navigate(`/product/${p.id}`, { state: { ...p, imageUrl: productImg } })}
+                            className="flex-1 bg-white border-2 border-emerald-100 py-3 rounded-2xl font-black text-emerald-900 text-[10px] uppercase tracking-widest hover:bg-emerald-50 hover:border-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                          >
+                            Details <ChevronRight size={14} />
+                          </button> 
+                          
+                          <button 
+                            onClick={() => addToCart({ ...p, imageUrl: productImg })}
+                            className="w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl transition-all active:scale-90 flex items-center justify-center shadow-lg shadow-emerald-100"
+                            title="Add to Cart"
+                          >
+                            <ShoppingCart size={18} />
+                          </button>
 
-                        <button className="px-3 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-emerald-600 transition-colors">
-                          <Phone size={18} />
-                        </button>
+                          <button className="w-12 h-12 bg-white border-2 border-emerald-100 text-emerald-700 rounded-2xl hover:bg-emerald-50 transition-colors flex items-center justify-center">
+                            <Phone size={18} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -209,6 +255,24 @@ const Marketplace = () => {
             </AnimatePresence>
           </motion.div>
         </main>
+      </div>
+
+      {/* --- Footer Branding --- */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-12">
+        <div className="bg-white border border-emerald-100 p-8 rounded-[3rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+          <div className="flex items-center gap-5">
+            <div className="p-4 bg-emerald-900 rounded-2xl">
+              <PackageCheck size={32} className="text-emerald-400" />
+            </div>
+            <div>
+              <h4 className="font-black text-slate-800 text-lg">100% Quality Assurance</h4>
+              <p className="text-slate-500 text-sm font-medium">Every harvest is verified for grade and moisture by local experts.</p>
+            </div>
+          </div>
+          <button className="bg-emerald-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-800 transition-all shadow-xl shadow-emerald-100">
+            Become a Verified Seller
+          </button>
+        </div>
       </div>
     </div>
   );
