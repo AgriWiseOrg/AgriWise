@@ -21,12 +21,15 @@ const MarketPrices = () => {
   const [historyData, setHistoryData] = useState(null);
   const [selectedCrop, setSelectedCrop] = useState('Wheat');
   const [demandData, setDemandData] = useState([]);
+  const [forecastData, setForecastData] = useState(null);
+  const [loadingForecast, setLoadingForecast] = useState(false);
 
   // Fetch Initial Data
   useEffect(() => {
     fetchPrices();
     fetchDemand();
     fetchHistory('Wheat');
+    fetchForecast('Wheat');
   }, []);
 
   const fetchPrices = async () => {
@@ -58,6 +61,20 @@ const MarketPrices = () => {
       setDemandData(data);
     } catch (err) {
       console.error("Failed to fetch demand", err);
+    }
+  };
+
+
+  const fetchForecast = async (crop) => {
+    setLoadingForecast(true);
+    try {
+      const res = await fetch(`http://localhost:5001/api/market/forecast-30-days?crop=${crop}`);
+      const data = await res.json();
+      setForecastData(data);
+    } catch (err) {
+      console.error("Failed to fetch forecast", err);
+    } finally {
+      setLoadingForecast(false);
     }
   };
 
@@ -186,28 +203,74 @@ const MarketPrices = () => {
               </div>
 
               {historyData && historyData.data && historyData.data.length > 0 ? (
-                <div className="h-64 flex items-end gap-4 relative mt-10 border-b border-slate-100 pb-2">
-                  {historyData.data.map((point, i) => {
-                    const price = point.price || 0;
-                    const maxPrice = 6000; // Fixed max scale for better visualization
-                    const heightPercent = Math.min((price / maxPrice) * 100, 100);
+                <div className="h-96 mt-10 relative">
+                  {/* Y-Axis Label */}
+                  <div className="absolute -left-12 top-1/2 -rotate-90 text-xs font-bold text-slate-400">
+                    Price (₹ per Quintal)
+                  </div>
+                  {(() => {
+                    const data = historyData.data;
+                    const maxPrice = 7000;
+                    const width = 100; // viewbox units
+                    const height = 100; // viewbox units
+                    const padding = 5;
+
+                    // Calculate points
+                    const points = data.map((d, i) => {
+                      const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
+                      const y = height - padding - ((d.price || 0) / maxPrice) * (height - 2 * padding);
+                      return `${x},${y}`;
+                    }).join(' ');
+
+                    // Calculate fill area
+                    const firstX = padding;
+                    const lastX = width - padding;
+                    const fillPath = `${points} L${lastX},${height} L${firstX},${height} Z`;
 
                     return (
-                      <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs py-1 px-2 rounded z-10 whitespace-nowrap">
-                          ₹{price}
-                        </div>
-                        {/* Bar */}
-                        <div
-                          style={{ height: `${heightPercent}%` }}
-                          className="w-full bg-emerald-100 hover:bg-emerald-500 transition-all duration-500 rounded-t-lg relative group-hover:shadow-md"
-                        >
-                        </div>
-                        <span className="mt-4 text-sm text-slate-500 font-medium text-center rotate-0 truncate w-full">{point.month}</span>
-                      </div>
-                    )
-                  })}
+                      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+                        {/* Gradients */}
+                        <defs>
+                          <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Area Fill */}
+                        <path d={`M${points.split(' ')[0]} ${fillPath}`} fill="url(#lineGradient)" stroke="none" />
+
+                        {/* Line */}
+                        <path d={`M${points}`} fill="none" stroke="#059669" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+
+                        {/* Checkpoints */}
+                        {data.map((d, i) => {
+                          const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
+                          const y = height - padding - ((d.price || 0) / maxPrice) * (height - 2 * padding);
+                          return (
+                            <g key={i} className="group cursor-pointer">
+                              <circle cx={x} cy={y} r="1.5" className="fill-white stroke-emerald-600 stroke-[0.5] group-hover:r-2 transition-all" />
+
+                              {/* Tooltip */}
+                              <foreignObject x={x - 10} y={y - 15} width="20" height="20" className="overflow-visible pointer-events-none">
+                                <div className="flex flex-col items-center opacity-0 group-hover:opacity-100 transition-opacity absolute -top-4 left-1/2 -translate-x-1/2 transform">
+                                  <div className="bg-slate-800 text-white text-[4px] px-1 py-0.5 rounded shadow-lg whitespace-nowrap">
+                                    ₹{d.price}
+                                  </div>
+                                  <div className="w-0 h-0 border-l-[2px] border-l-transparent border-r-[2px] border-r-transparent border-t-[2px] border-t-slate-800"></div>
+                                </div>
+                              </foreignObject>
+
+                              {/* X-Axis Label */}
+                              <text x={x} y={height + 5} fontSize="3" textAnchor="middle" fill="#64748b" className="font-sans font-medium">
+                                {d.month}
+                              </text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="h-64 flex items-center justify-center text-slate-400">
@@ -219,32 +282,116 @@ const MarketPrices = () => {
 
           {/* 3. DEMAND FORECASTS */}
           {activeTab === 'demand' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {demandData.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white p-6 rounded-2xl border-l-4 border-l-indigo-500 shadow-sm flex justify-between items-center"
-                >
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-800">{item.crop}</h3>
-                    <p className="text-slate-500 text-sm">{item.reason}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className={`font-black text-xl ${item.demandLevel === 'High' || item.demandLevel === 'Very High' ? 'text-indigo-600' : 'text-slate-600'
-                      }`}>
-                      {item.demandLevel}
+            <div className="space-y-8">
+              {/* Forecast Section */}
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <div className="flex justify-between items-center mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-indigo-100 rounded-xl">
+                      <TrendingUp className="w-6 h-6 text-indigo-600" />
                     </div>
-                    <div className="text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full inline-block mt-1">
-                      {item.growth} Demand
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-800">30-Day Price Forecast</h2>
+                      <p className="text-sm text-slate-400">AI-Powered future price predictions</p>
                     </div>
                   </div>
-                </motion.div>
-              ))}
+                  <select
+                    value={selectedCrop}
+                    onChange={(e) => {
+                      setSelectedCrop(e.target.value);
+                      fetchForecast(e.target.value);
+                    }}
+                    className="p-3 border rounded-xl bg-slate-50 font-bold text-slate-700 min-w-[150px] focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                  >
+                    {PRODUCTS.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+
+                {loadingForecast ? (
+                  <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-3">
+                    <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+                    <p className="animate-pulse">Analyzing market trends...</p>
+                  </div>
+                ) : forecastData && forecastData.data && forecastData.data.length > 0 ? (
+                  <div className="h-96 w-full relative group/chart">
+                    {(() => {
+                      const data = forecastData.data;
+                      const prices = data.map(d => d.price);
+                      const minPrice = Math.min(...prices) * 0.95;
+                      const maxPrice = Math.max(...prices) * 1.05;
+                      const width = 100;
+                      const height = 100;
+                      const padding = 5;
+
+                      const points = data.map((d, i) => {
+                        const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
+                        const y = height - padding - ((d.price - minPrice) / (maxPrice - minPrice)) * (height - 2 * padding);
+                        return `${x},${y}`;
+                      }).join(' ');
+
+                      const fillPath = `${points} L${width - padding},${height} L${padding},${height} Z`;
+
+                      return (
+                        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+                          <defs>
+                            <linearGradient id="forecastGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.5" />
+                              <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+
+                          {/* Grid Lines (Optional) */}
+                          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e2e8f0" strokeWidth="0.5" />
+                          <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#e2e8f0" strokeWidth="0.5" />
+
+                          <path d={`M${points.split(' ')[0]} ${fillPath}`} fill="url(#forecastGradient)" stroke="none" />
+                          <path d={`M${points}`} fill="none" stroke="#4f46e5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+
+                          {data.map((d, i) => {
+                            const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
+                            const y = height - padding - ((d.price - minPrice) / (maxPrice - minPrice)) * (height - 2 * padding);
+
+                            // Show fewer labels for clarity
+                            const showLabel = i % 5 === 0 || i === data.length - 1;
+
+                            return (
+                              <g key={i} className="group/point">
+                                <circle cx={x} cy={y} r="1.5" className="fill-white stroke-indigo-600 stroke-1 opacity-0 group-hover/chart:opacity-100 transition-opacity" />
+                                <foreignObject x={x - 15} y={y - 20} width="30" height="30" className="overflow-visible pointer-events-none">
+                                  <div className="flex flex-col items-center opacity-0 group-hover/point:opacity-100 transition-all transform -translate-y-1">
+                                    <div className="bg-slate-900/90 backdrop-blur text-white text-[3px] px-1.5 py-1 rounded-md shadow-xl whitespace-nowrap z-50">
+                                      <div className="font-bold">₹{d.price}</div>
+                                      <div className="text-[2px] text-slate-300">{new Date(d.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+                                    </div>
+                                    <div className="w-0 h-0 border-l-[2px] border-l-transparent border-r-[2px] border-r-transparent border-t-[2px] border-t-slate-900/90"></div>
+                                  </div>
+                                </foreignObject>
+
+                                {showLabel && (
+                                  <text x={x} y={height + 5} fontSize="2.5" textAnchor="middle" fill="#94a3b8" className="select-none">
+                                    {new Date(d.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                  </text>
+                                )}
+                              </g>
+                            )
+                          })}
+                        </svg>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <div className="h-64 flex flex-col items-center justify-center text-slate-400 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                    <TrendingUp className="w-8 h-8 mb-2 opacity-50" />
+                    <p>Select a crop to generate AI price forecast</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Existing Demand Cards */}
+
             </div>
           )}
+
 
           {/* 4. AI PREDICTOR (Existing Logic) */}
           {activeTab === 'predict' && (
@@ -337,10 +484,10 @@ const MarketPrices = () => {
                       className="space-y-6 relative z-10"
                     >
                       <div>
-                        <span className="text-indigo-300 text-sm uppercase tracking-wider">Estimated Price</span>
+                        <span className="text-indigo-300 text-sm uppercase tracking-wider">Estimated Price (per Quintal)</span>
                         <div className="text-6xl font-bold mt-2">
                           ₹{prediction.predictedPrice}
-                          <span className="text-xl text-indigo-300 font-normal ml-2">/ kg</span>
+                          <span className="text-xl text-indigo-300 font-normal ml-2">/ Quintal</span>
                         </div>
                       </div>
 
