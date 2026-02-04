@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "./CartContext"; // Ensure this path is correct
+import { useCart } from "./CartContext"; 
 import { 
   ArrowLeft, Trash2, Plus, Minus, 
   ShoppingBag, ShieldCheck, Truck, ChevronRight 
@@ -8,7 +8,21 @@ import {
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
+  // Added 'loading' to handle the transition while fetching from MongoDB
+  const { cartItems, removeFromCart, updateQuantity, totalPrice, totalItems, loading, fetchCart } = useCart();
+
+  // IMPORTANT: Re-fetch the cart when the component mounts to ensure data is fresh
+  useEffect(() => {
+    if (fetchCart) fetchCart();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
@@ -25,7 +39,6 @@ const Cart = () => {
 
       <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-6">
         {cartItems.length === 0 ? (
-          /* --- Empty Cart State --- */
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mt-10">
             <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
               <ShoppingBag size={40} className="text-slate-400" />
@@ -43,7 +56,6 @@ const Cart = () => {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* --- Left: Cart Items List --- */}
             <div className="lg:w-2/3 space-y-4">
               <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                 <h2 className="font-black text-lg mb-4 flex items-center gap-2">
@@ -51,15 +63,14 @@ const Cart = () => {
                 </h2>
                 <div className="divide-y divide-slate-100">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="py-6 flex gap-4 first:pt-0 last:pb-0">
-                      {/* Product Image */}
+                    // FIXED: Using item.productId (from your MongoDB schema) instead of item.id
+                    <div key={item.productId || item._id} className="py-6 flex gap-4 first:pt-0 last:pb-0">
                       <img 
                         src={item.imageUrl} 
                         alt={item.crop} 
                         className="w-24 h-24 lg:w-32 lg:h-32 object-cover rounded-2xl bg-slate-100"
                       />
                       
-                      {/* Product Details */}
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start">
@@ -71,26 +82,25 @@ const Cart = () => {
                         </div>
 
                         <div className="flex items-center justify-between mt-4">
-                          {/* Quantity Controls */}
                           <div className="flex items-center gap-3 bg-slate-100 rounded-xl px-2 py-1 border border-slate-200">
                             <button 
-                              onClick={() => updateQuantity(item.id, -1)}
+                              // FIXED: Passing productId to match backend removal logic
+                              onClick={() => updateQuantity(item.productId, -1)}
                               className="p-1 hover:bg-white rounded-md transition-colors text-slate-600"
                             >
                               <Minus size={16} />
                             </button>
                             <span className="font-black text-sm w-4 text-center">{item.quantity}</span>
                             <button 
-                              onClick={() => updateQuantity(item.id, 1)}
+                              onClick={() => updateQuantity(item.productId, 1)}
                               className="p-1 hover:bg-white rounded-md transition-colors text-slate-600"
                             >
                               <Plus size={16} />
                             </button>
                           </div>
 
-                          {/* Remove Button */}
                           <button 
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.productId)}
                             className="text-red-500 hover:bg-red-50 rounded-lg p-2 transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider"
                           >
                             <Trash2 size={16} />
@@ -104,11 +114,9 @@ const Cart = () => {
               </div>
             </div>
 
-            {/* --- Right: Price Summary --- */}
             <div className="lg:w-1/3">
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm sticky top-24">
                 <h3 className="font-black text-xl mb-6">Order Summary</h3>
-                
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-slate-600 text-sm">
                     <span>Subtotal ({totalItems} items)</span>
@@ -118,10 +126,6 @@ const Cart = () => {
                     <span>Delivery Charges</span>
                     <span className="text-emerald-600 font-bold">FREE</span>
                   </div>
-                  <div className="flex justify-between text-slate-600 text-sm border-t border-slate-100 pt-4">
-                    <span>Tax (GST)</span>
-                    <span className="font-bold text-slate-900">₹0.00</span>
-                  </div>
                 </div>
 
                 <div className="flex justify-between items-center border-t border-slate-200 pt-6 mb-8">
@@ -129,24 +133,15 @@ const Cart = () => {
                   <span className="text-2xl font-black text-emerald-800">₹{totalPrice}</span>
                 </div>
 
-                <div className="space-y-3">
-                  <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-orange-200 transition-all active:scale-95 flex items-center justify-center gap-2">
-                    Checkout Now <ChevronRight size={20} />
-                  </button>
-                  
-                  <div className="bg-emerald-50 p-3 rounded-xl flex items-center gap-3">
-                    <Truck size={20} className="text-emerald-600 shrink-0" />
-                    <p className="text-[10px] text-emerald-800 font-bold leading-tight uppercase">
-                      Free Carbon-Neutral Delivery applied to this order!
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-col items-center gap-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck size={16} />
-                    <span>Secure Encrypted Checkout</span>
-                  </div>
+                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                  Checkout Now <ChevronRight size={20} />
+                </button>
+                
+                <div className="mt-4 bg-emerald-50 p-3 rounded-xl flex items-center gap-3">
+                  <Truck size={20} className="text-emerald-600 shrink-0" />
+                  <p className="text-[10px] text-emerald-800 font-bold leading-tight uppercase">
+                    Free Carbon-Neutral Delivery applied!
+                  </p>
                 </div>
               </div>
             </div>

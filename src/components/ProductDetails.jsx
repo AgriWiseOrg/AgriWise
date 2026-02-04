@@ -1,35 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
-  ArrowLeft, MapPin, Star, ShoppingCart, 
-  Phone, User, Package, ShieldCheck, 
-  Leaf, Info, CheckCircle2, Truck,
-  ChevronRight, Share2, Heart, Award
+  ArrowLeft, MapPin, Star, Phone, ShieldCheck, 
+  Leaf, CheckCircle2, Truck, ChevronRight, Share2, Heart, Award
 } from "lucide-react";
-import { useCart } from "./CartContext"; // Added Import
+import { useCart } from "./CartContext"; 
 
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { state: product } = useLocation();
-  const { addToCart } = useCart(); // Access the function from Context
+  const { addToCart } = useCart(); 
   const [activeTab, setActiveTab] = useState("description");
 
   if (!product) return null;
 
-  const reviews = [
-    { id: 1, user: "Anil Kumar", rating: 5, comment: "Excellent quality rice. Very fresh!", date: "2 days ago" },
-    { id: 2, user: "Meera J.", rating: 4, comment: "Good grain size, but shipping took an extra day.", date: "1 week ago" }
-  ];
+  // FIXED: Standardized Helper function for adding to cart
+  const handleAddToCart = async () => {
+    // 1. We must ensure the ID is a string and mapped correctly for the backend
+    const standardizedProduct = {
+      ...product,
+      id: String(product._id || product.id), // Ensure ID is a string for MongoDB findIndex
+      productId: String(product._id || product.id) // Matches your backend productId field
+    };
 
-  // Helper function for adding to cart
-  const handleAddToCart = () => {
-    addToCart(product);
-    navigate("/cart");
+    try {
+      // 2. Call the context function (which now handles the axios post)
+      await addToCart(standardizedProduct);
+      
+      // 3. Only navigate after the database confirms success
+      navigate("/cart");
+    } catch (error) {
+      // This will catch if the alert in your context is triggered
+      console.error("Cart sync failed:", error);
+    }
   };
 
   return (
     <div className="bg-white min-h-screen pb-20 font-sans text-slate-900">
-      {/* --- Top Nav (Amazon Inspired) --- */}
+      {/* --- Top Nav --- */}
       <nav className="bg-emerald-800 text-white sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate(-1)} className="p-1 hover:bg-emerald-700 rounded-full transition-colors">
@@ -49,7 +57,7 @@ const ProductDetails = () => {
       <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-6">
         <div className="flex flex-col lg:flex-row gap-10">
           
-          {/* --- Left: Image Gallery (Fixed on Scroll for Desktop) --- */}
+          {/* --- Left: Image Gallery --- */}
           <div className="lg:w-1/2 lg:sticky lg:top-24 h-fit">
             <div className="relative group rounded-3xl overflow-hidden bg-slate-100 border border-slate-200">
               <img 
@@ -63,7 +71,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* --- Center: Product Info & Scrolling Content --- */}
+          {/* --- Center: Product Info --- */}
           <div className="lg:w-[45%] flex flex-col gap-6">
             <div>
               <p className="text-emerald-600 font-bold text-sm">Brand: {product.farmer}'s Organic</p>
@@ -96,7 +104,7 @@ const ProductDetails = () => {
               </p>
             </div>
 
-            {/* Icons Grid */}
+            {/* Service Icons */}
             <div className="grid grid-cols-4 gap-2 py-4">
               {[
                 { icon: <Truck />, label: "Fast Delivery" },
@@ -113,7 +121,6 @@ const ProductDetails = () => {
               ))}
             </div>
 
-            {/* Scrollable Details Section */}
             <div className="space-y-8 mt-4">
               <section>
                 <h3 className="font-black text-lg border-b-2 border-emerald-500 w-fit pb-1 mb-4">Product Specifications</h3>
@@ -126,33 +133,10 @@ const ProductDetails = () => {
                   </tbody>
                 </table>
               </section>
-
-              <section>
-                <h3 className="font-black text-lg border-b-2 border-emerald-500 w-fit pb-1 mb-4">Customer Reviews</h3>
-                <div className="space-y-4">
-                  {reviews.map(r => (
-                    <div key={r.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-white text-xs font-bold">
-                          {r.user[0]}
-                        </div>
-                        <span className="font-bold text-sm">{r.user}</span>
-                      </div>
-                      <div className="flex items-center gap-1 mb-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={12} className={`${i < r.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
-                        ))}
-                      </div>
-                      <p className="text-sm text-slate-700 leading-relaxed italic">"{r.comment}"</p>
-                      <span className="text-[10px] text-slate-400 mt-2 block font-bold">{r.date}</span>
-                    </div>
-                  ))}
-                </div>
-              </section>
             </div>
           </div>
 
-          {/* --- Right: Sticky Purchase Sidebar (Amazon Style) --- */}
+          {/* --- Right: Sticky Purchase Sidebar --- */}
           <div className="hidden lg:block lg:w-[25%]">
             <div className="border border-slate-200 p-6 rounded-3xl sticky top-24 shadow-sm bg-white">
               <p className="text-2xl font-bold">₹{product.price}</p>
@@ -192,7 +176,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* --- Mobile Fixed Bottom Bar (Amazon App Style) --- */}
+      {/* --- Mobile Fixed Bottom Bar --- */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 flex gap-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <button 
           onClick={handleAddToCart}
