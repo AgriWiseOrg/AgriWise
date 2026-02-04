@@ -16,7 +16,7 @@ const DemandForecast = require('./models/DemandForecast');
 const schemeRoutes = require('./routes/schemes');
 const financeRoutes = require('./routes/finance');
 const cartRoutes = require('./routes/cartroutes');
-
+const productRoutes = require('./routes/products');   
 // ================= MIDDLEWARE (CRITICAL ORDER) =================
 // These must be defined BEFORE any routes to process data correctly
 app.use(cors());
@@ -173,7 +173,8 @@ app.get('/api/market/demand', async (req, res) => {
 // Cart Routes
 app.use('/api/cart', cartRoutes);
 
-
+// MarketPlace Products
+app.use('/api/products', productRoutes);
 
 
 // ================= SERVER START =================
