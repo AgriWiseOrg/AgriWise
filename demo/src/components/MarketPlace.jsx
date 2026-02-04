@@ -9,8 +9,10 @@ import {
   Phone, 
   TrendingUp, 
   X,
-  ArrowLeft 
+  ArrowLeft,
+  ShoppingCart 
 } from "lucide-react";
+import { useCart } from "./CartContext"; // 1. IMPORT YOUR CART CONTEXT
 
 const getCropImage = (crop) => {
   const images = {
@@ -23,6 +25,7 @@ const getCropImage = (crop) => {
 
 const Marketplace = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart(); // 2. ACCESS THE ADDTOCART FUNCTION
   
   const [products] = useState([
     { id: 1, crop: "Rice", price: 2200, quantity: 50, location: "Kerala", farmer: "Ramesh", rating: 4.5 },
@@ -71,6 +74,14 @@ const Marketplace = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
+          <button 
+            onClick={() => navigate('/cart')} 
+            className="p-2 hover:bg-emerald-600 rounded-full transition-all relative"
+          >
+            <ShoppingCart size={24} />
+          </button>
+
           <button className="md:hidden p-2" onClick={() => setIsMobileFilterOpen(true)}>
             <Filter />
           </button>
@@ -118,16 +129,6 @@ const Marketplace = () => {
             <h2 className="text-2xl font-bold text-slate-800">
               Fresh Produce <span className="text-slate-400 font-normal text-lg">({filtered.length} results)</span>
             </h2>
-            <select
-              className="bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-sm"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="featured">Sort by: Featured</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
           </div>
 
           <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -185,8 +186,18 @@ const Marketplace = () => {
                           onClick={() => navigate(`/product/${p.id}`, { state: { ...p, imageUrl: productImg } })}
                           className="flex-1 bg-white border border-slate-200 py-2 rounded-lg font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-all active:scale-95"
                         >
-                          Buy Now
+                          View Details
                         </button> 
+                        
+                        {/* 3. UPDATED BUTTON: Calls addToCart from Context */}
+                        <button 
+                          onClick={() => addToCart({ ...p, imageUrl: productImg })}
+                          className="px-3 bg-emerald-600 border border-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center shadow-sm"
+                          title="Add to Cart"
+                        >
+                          <ShoppingCart size={18} />
+                        </button>
+
                         <button className="px-3 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-emerald-600 transition-colors">
                           <Phone size={18} />
                         </button>

@@ -15,7 +15,7 @@ const DemandForecast = require('./models/DemandForecast');
 // ================= ROUTE IMPORTS =================
 const schemeRoutes = require('./routes/schemes');
 const financeRoutes = require('./routes/finance');
-
+const cartRoutes = require('./routes/cartroutes');
 
 // ================= MIDDLEWARE (CRITICAL ORDER) =================
 // These must be defined BEFORE any routes to process data correctly
@@ -169,6 +169,12 @@ app.get('/api/market/demand', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch demand forecasts' });
   }
 });
+
+// Cart Routes
+app.use('/api/cart', cartRoutes);
+
+
+
 
 // ================= SERVER START =================
 const PORT = process.env.PORT || 5001;
