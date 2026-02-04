@@ -20,7 +20,7 @@ import LatestUpdates from './components/GovtSchemes/LatestUpdates';
 import SchemeList from './components/GovtSchemes/SchemeList';
 
 // RBAC Components
-import FinanceAdmin from './components/GovtSchemes/Finance_admin'; 
+import FinanceAdmin from './components/GovtSchemes/Finance_admin';
 import FinanceFarmer from './components/GovtSchemes/Finance_farmer';
 
 function App() {
@@ -78,11 +78,11 @@ function App() {
                 <Route path="/schemes/updates" element={<LatestUpdates />} />
 
                 {/* Logic: If role is admin, show Admin UI, else show Farmer UI */}
-                <Route 
-                  path="/schemes/finance" 
+                <Route
+                  path="/schemes/finance"
                   element={
-                    user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer />
-                  } 
+                    user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer user={user} />
+                  }
                 />
               </>
             ) : (
