@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const FrontPage = ({ onLogout }) => { // Added onLogout prop
+const FrontPage = ({ onLogout, cartCount = 0 }) => { // Added cartCount prop
   const navigate = useNavigate();
 
   const menuItems = [
@@ -28,8 +28,21 @@ const FrontPage = ({ onLogout }) => { // Added onLogout prop
             <button className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-slate-700 font-bold text-sm border border-slate-200 transition-colors">
               🌐 <span className="hidden sm:inline">English</span>
             </button>
+
+            {/* --- Added Cart Button --- */}
+            <button 
+              onClick={() => navigate('/cart')}
+              className="relative flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl text-emerald-700 font-bold text-sm border border-emerald-100 transition-colors"
+            >
+              🛒 <span className="hidden sm:inline">Cart</span>
+              {/* Optional: Show badge if cart is not empty */}
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
+                  {cartCount}
+                </span>
+              )}
+            </button>
             
-            {/* Added Logout Button */}
             <button 
               onClick={onLogout}
               className="bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl text-red-600 font-bold text-sm border border-red-100 transition-colors"
@@ -98,7 +111,8 @@ const FrontPage = ({ onLogout }) => { // Added onLogout prop
           <button onClick={() => navigate('/marketplace')} className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">📦</button>
           <button className="bg-emerald-500 hover:bg-emerald-400 p-4 rounded-full -mt-16 border-[6px] border-slate-50 shadow-lg transition-all active:scale-90 text-2xl">➕</button>
           <button onClick={() => navigate('/support')} className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">💬</button>
-          <button className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">👤</button>
+          {/* You could also redirect to cart from here by changing navigate('/cart') */}
+          <button onClick={() => navigate('/cart')} className="opacity-50 hover:opacity-100 hover:scale-110 transition-transform">🛒</button>
         </div>
       </div>
     </div>
