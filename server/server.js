@@ -17,7 +17,7 @@ const PredictionModel = require('./models/PredictionModel');
 const schemeRoutes = require('./routes/schemes');
 const financeRoutes = require('./routes/finance');
 const cartRoutes = require('./routes/cartroutes');
-const productRoutes = require('./routes/products');   
+const productRoutes = require('./routes/products');
 // ================= MIDDLEWARE (CRITICAL ORDER) =================
 // These must be defined BEFORE any routes to process data correctly
 app.use(cors());
@@ -233,16 +233,8 @@ app.get('/api/market/demand', async (req, res) => {
   }
 });
 
-<<<<<<< Updated upstream
-// Cart Routes
-app.use('/api/cart', cartRoutes);
 
-// MarketPlace Products
-app.use('/api/products', productRoutes);
-
-
-=======
-// 4. 30-Day Price Forecast
+// 4. 30-Day Price Forecast (Restored with Sine Wave Logic)
 app.get('/api/market/forecast-30-days', async (req, res) => {
   const { crop } = req.query;
   if (!crop) return res.status(400).json({ error: 'Crop parameter required' });
@@ -252,9 +244,8 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
     let model = await PredictionModel.findOne({ crop });
     const now = new Date();
 
-    // 2. Train if missing or stale (Copied logic from predict-price for safety)
+    // 2. Train if missing or stale
     if (!model || (now - new Date(model.lastTrained) > 24 * 60 * 60 * 1000)) {
-      // Fetch history
       const history = await MarketPrice.find({ crop }).sort({ date: 1 });
       if (history.length >= 2) {
         const n = history.length;
@@ -283,7 +274,6 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
     }
 
     if (!model) {
-      // Return empty if we still don't have a model (e.g. no history data)
       return res.json({ crop, data: [], note: 'Insufficient data to forecast' });
     }
 
@@ -292,12 +282,11 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
     let currentDate = new Date();
     currentDate.setDate(currentDate.getDate() + 1);
 
-    // Random parameters for sine wave to ensure uniqueness per request/crop
-    // Reduced volatility as per user request (2% to 5%)
-    const volatility = 0.02 + Math.random() * 0.03;
-    const waveFrequency = 0.1 + Math.random() * 0.2; // How fast it oscillates
-    const waveAmplitude = 100 + Math.random() * 200; // Height of peaks (₹100-300)
-    const phaseShift = Math.random() * Math.PI * 2; // Random start point in wave
+    // Reduced volatility (smooth sine wave with gentle randomness)
+    const volatility = 0.02 + Math.random() * 0.03; // 2% to 5% range
+    const waveFrequency = 0.1 + Math.random() * 0.2;
+    const waveAmplitude = 100 + Math.random() * 200;
+    const phaseShift = Math.random() * Math.PI * 2;
 
     for (let i = 0; i < 30; i++) {
       const time = currentDate.getTime();
@@ -324,7 +313,6 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-
     res.json({ crop, data: forecastData });
 
   } catch (error) {
@@ -333,7 +321,13 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
   }
 });
 
->>>>>>> Stashed changes
+// Cart Routes
+app.use('/api/cart', cartRoutes);
+
+// MarketPlace Products
+app.use('/api/products', productRoutes);
+
+
 // ================= SERVER START =================
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () =>
