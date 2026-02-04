@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from './CartContext'; // Ensure this path is correct
 
 const FrontPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const { totalItems } = useCart(); // Automatically get count from global state
+  const [weatherData, setWeatherData] = useState({ temp: '--', icon: '☀️' });
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch('http://localhost:5001/api/support/weather');
+        const json = await res.json();
+        if (json.success) setWeatherData({ temp: json.data.temp, icon: json.data.icon });
+      } catch (err) {
+        console.error("Failed to fetch header weather", err);
+      }
+    };
+    fetchWeather();
+  }, []);
 
   // Get dynamic greeting
   const hour = new Date().getHours();
@@ -33,10 +47,10 @@ const FrontPage = ({ onLogout }) => {
               <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Smart Farming</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {/* Cart Button with Animated Badge */}
-            <button 
+            <button
               onClick={() => navigate('/cart')}
               className="group relative p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-2xl border border-slate-200 transition-all"
             >
@@ -47,8 +61,8 @@ const FrontPage = ({ onLogout }) => {
                 </span>
               )}
             </button>
-            
-            <button 
+
+            <button
               onClick={onLogout}
               className="hidden sm:block bg-slate-900 text-white px-5 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
             >
@@ -59,18 +73,18 @@ const FrontPage = ({ onLogout }) => {
       </nav>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-10">
-        
+
         {/* --- Welcome Header --- */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-slate-900">{greeting}, Farmer! 👋</h1>
             <p className="text-slate-500 mt-2 font-medium">Here is what's happening on your farm today.</p>
           </div>
-          
+
           <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
             <div className="px-4 py-2 text-center">
               <p className="text-[10px] text-slate-400 font-black uppercase">Weather</p>
-              <p className="font-bold text-slate-800 flex items-center gap-1">28°C <span className="text-sky-500">☀️</span></p>
+              <p className="font-bold text-slate-800 flex items-center gap-1">{weatherData.temp}°C <span className="text-sky-500">{weatherData.icon}</span></p>
             </div>
             <div className="w-[1px] h-8 bg-slate-200"></div>
             <div className="px-4 py-2 text-center">
@@ -122,14 +136,14 @@ const FrontPage = ({ onLogout }) => {
                   {item.badge}
                 </span>
               )}
-              
+
               <div className={`${item.bg} h-16 w-16 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner group-hover:scale-110 transition-transform`}>
                 {item.icon}
               </div>
-              
+
               <h4 className="font-black text-slate-800 text-2xl tracking-tight">{item.title}</h4>
               <p className="text-slate-500 font-medium mt-2 leading-relaxed">{item.desc}</p>
-              
+
               <div className="mt-6 flex items-center gap-2 text-emerald-600 font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
                 Open Dashboard <span>→</span>
               </div>

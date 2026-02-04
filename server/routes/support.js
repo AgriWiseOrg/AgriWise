@@ -40,8 +40,9 @@ router.get('/weather', async (req, res) => {
     const { lat = 28.6139, lon = 77.2090 } = req.query; // Default to New Delhi
 
     try {
-        const weatherRes = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`);
+        const weatherRes = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`);
         const current = weatherRes.data.current;
+        const daily = weatherRes.data.daily;
 
         // Generate simple agricultural advisory logic
         let advisory = "Conditions are stable for most crops.";
@@ -78,7 +79,13 @@ router.get('/weather', async (req, res) => {
                 advisory,
                 level,
                 icon,
-                location: { lat, lon }
+                location: { lat, lon },
+                forecast: daily.time.map((t, i) => ({
+                    date: t,
+                    max: daily.temperature_2m_max[i],
+                    min: daily.temperature_2m_min[i],
+                    code: daily.weather_code[i]
+                }))
             }
         });
     } catch (error) {
