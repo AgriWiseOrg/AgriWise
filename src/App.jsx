@@ -11,13 +11,16 @@ import MarketPlace from './components/MarketPlace';
 import Weather from './components/Weather';
 import Suppport from './components/Suppport';
 import ProductDetails from './components/ProductDetails';
-import Cart from './components/Cart'; // Added Cart Import
+import Cart from './components/Cart';
 import { CartProvider } from './components/CartContext';
 
-// Epic 6: Govt Schemes Subpages
-import FarmingTips from './components/GovtSchemes/FarmingTips';
-import LatestUpdates from './components/GovtSchemes/LatestUpdates';
-import SchemeList from './components/GovtSchemes/SchemeList';
+// Epic 6: Govt Schemes Subpages - Split into Admin/Farmer
+import FarmingTipsAdmin from './components/GovtSchemes/FarmingTips_admin';
+import FarmingTipsFarmer from './components/GovtSchemes/FarmingTips_farmer';
+import LatestUpdatesAdmin from './components/GovtSchemes/LatestUpdates_admin';
+import LatestUpdatesFarmer from './components/GovtSchemes/LatestUpdates_farmer';
+import SchemeListAdmin from './components/GovtSchemes/SchemeList_admin';
+import SchemeListFarmer from './components/GovtSchemes/SchemeList_farmer';
 
 // RBAC Components
 import FinanceAdmin from './components/GovtSchemes/Finance_admin';
@@ -67,22 +70,27 @@ function App() {
                 <Route path="/my-crops" element={<MyCrops user={user} />} />
                 <Route path="/govt-schemes" element={<GovtSchemes />} />
                 <Route path="/marketplace" element={<MarketPlace />} />
-                <Route path="/cart" element={<Cart />} /> {/* Added Cart Route */}
+                <Route path="/cart" element={<Cart />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/support" element={<Suppport />} />
 
-                {/* Govt Schemes Sub-Routes (Epic 6) */}
-                <Route path="/schemes/list" element={<SchemeList />} />
-                <Route path="/schemes/tips" element={<FarmingTips />} />
-                <Route path="/schemes/updates" element={<LatestUpdates />} />
-
-                {/* Logic: If role is admin, show Admin UI, else show Farmer UI */}
+                {/* Govt Schemes Sub-Routes with Role Based Access */}
+                <Route
+                  path="/schemes/list"
+                  element={user.role === 'admin' ? <SchemeListAdmin /> : <SchemeListFarmer user={user} />}
+                />
+                <Route
+                  path="/schemes/tips"
+                  element={user.role === 'admin' ? <FarmingTipsAdmin /> : <FarmingTipsFarmer />}
+                />
+                <Route
+                  path="/schemes/updates"
+                  element={user.role === 'admin' ? <LatestUpdatesAdmin /> : <LatestUpdatesFarmer />}
+                />
                 <Route
                   path="/schemes/finance"
-                  element={
-                    user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer user={user} />
-                  }
+                  element={user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer user={user} />}
                 />
               </>
             ) : (
