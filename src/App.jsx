@@ -11,6 +11,8 @@ import MarketPlace from './components/MarketPlace';
 import Weather from './components/Weather';
 import Suppport from './components/Suppport';
 import ProductDetails from './components/ProductDetails';
+import Cart from './components/Cart'; // Added Cart Import
+import { CartProvider } from './components/CartContext';
 
 // Epic 6: Govt Schemes Subpages
 import FarmingTips from './components/GovtSchemes/FarmingTips';
@@ -48,47 +50,48 @@ function App() {
   }
 
   return (
-    <Router>
-      <main className="antialiased text-gray-900">
-        <Routes>
-          <Route
-            path="/login"
-            element={!user ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />}
-          />
+    <CartProvider>
+      <Router>
+        <main className="antialiased text-gray-900">
+          <Routes>
+            <Route
+              path="/login"
+              element={!user ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />}
+            />
 
-          {user ? (
-            <>
-              {/* Main Routes */}
-              <Route path="/" element={<FrontPage onLogout={handleLogout} />} />
-              <Route path="/market-prices" element={<MarketPrices />} />
-              <Route path="/my-crops" element={<MyCrops user={user} />} />
-              <Route path="/govt-schemes" element={<GovtSchemes />} />
-              <Route path="/marketplace" element={<MarketPlace />} />
-               <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/weather" element={<Weather />} />
-              <Route path="/support" element={<Suppport />} />
+            {user ? (
+              <>
+                {/* Main Routes */}
+                <Route path="/" element={<FrontPage onLogout={handleLogout} />} />
+                <Route path="/market-prices" element={<MarketPrices />} />
+                <Route path="/my-crops" element={<MyCrops user={user} />} />
+                <Route path="/govt-schemes" element={<GovtSchemes />} />
+                <Route path="/marketplace" element={<MarketPlace />} />
+                <Route path="/cart" element={<Cart />} /> {/* Added Cart Route */}
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/weather" element={<Weather />} />
+                <Route path="/support" element={<Suppport />} />
 
-              {/* Govt Schemes Sub-Routes (Epic 6) */}
-              <Route path="/schemes/list" element={<SchemeList />} />
-              <Route path="/schemes/tips" element={<FarmingTips />} />
-              <Route path="/schemes/updates" element={<LatestUpdates />} />
+                {/* Govt Schemes Sub-Routes (Epic 6) */}
+                <Route path="/schemes/list" element={<SchemeList />} />
+                <Route path="/schemes/tips" element={<FarmingTips />} />
+                <Route path="/schemes/updates" element={<LatestUpdates />} />
 
-              {/* Logic: If role is admin, show Admin UI, else show Farmer UI */}
-              <Route 
-                path="/schemes/finance" 
-                element={
-                  user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer />
-                } 
-              />
-
-              {/* AI Prediction Placeholder */}
-            </>
-          ) : (
-            <Route path="*" element={<Navigate to="/login" />} />
-          )}
-        </Routes>
-      </main>
-    </Router>
+                {/* Logic: If role is admin, show Admin UI, else show Farmer UI */}
+                <Route 
+                  path="/schemes/finance" 
+                  element={
+                    user.role === 'admin' ? <FinanceAdmin /> : <FinanceFarmer />
+                  } 
+                />
+              </>
+            ) : (
+              <Route path="*" element={<Navigate to="/login" />} />
+            )}
+          </Routes>
+        </main>
+      </Router>
+    </CartProvider>
   );
 }
 
