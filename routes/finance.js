@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const FinanceRequest = require('../models/FinanceRequest');
 
-// POST: Save a new application
+// POST: Save a new application when a farmer clicks "Apply Now"
 router.post('/apply', async (req, res) => {
   try {
     const newRequest = new FinanceRequest({
@@ -16,6 +16,16 @@ router.post('/apply', async (req, res) => {
   } catch (err) {
     console.error("Finance Application Error:", err);
     res.status(500).json({ error: "Failed to process application" });
+  }
+});
+
+// GET: Fetch all applications for the Admin Dashboard tab
+router.get('/all', async (req, res) => {
+  try {
+    const requests = await FinanceRequest.find().sort({ appliedAt: -1 });
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch requests" });
   }
 });
 

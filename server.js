@@ -16,6 +16,7 @@ const DemandForecast = require('./models/DemandForecast');
 const schemeRoutes = require('./routes/schemes');
 const financeRoutes = require('./routes/finance');
 
+
 // ================= MIDDLEWARE (CRITICAL ORDER) =================
 // These must be defined BEFORE any routes to process data correctly
 app.use(cors());
