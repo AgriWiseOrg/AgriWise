@@ -1,7 +1,17 @@
 const router = require('express').Router();
 const Scheme = require('../models/Scheme');
 
-// CREATE: Add a new scheme
+// 1. ADD THIS: GET all schemes (This fixes the 404)
+router.get('/', async (req, res) => {
+  try {
+    const schemes = await Scheme.find({});
+    res.status(200).json(schemes);
+  } catch (err) {
+    res.status(500).json({ error: "Could not fetch schemes" });
+  }
+});
+
+// 2. KEEP THIS: Add a new scheme
 router.post('/add', async (req, res) => {
   try {
     const newScheme = new Scheme(req.body);
@@ -12,7 +22,7 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// DELETE: Remove a scheme by ID
+// 3. KEEP THIS: Remove a scheme
 router.delete('/:id', async (req, res) => {
   try {
     await Scheme.findByIdAndDelete(req.params.id);
