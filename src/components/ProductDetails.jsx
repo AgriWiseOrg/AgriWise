@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, MapPin, Star, Phone, ShieldCheck, 
-  Leaf, CheckCircle2, Truck, ChevronRight, Share2, Heart, Award
+  Leaf, CheckCircle2, Truck, ChevronRight, Share2, Heart, Award, Send, User
 } from "lucide-react";
 import { useCart } from "./CartContext"; 
 
@@ -10,29 +10,44 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const { state: product } = useLocation();
   const { addToCart } = useCart(); 
-  const [activeTab, setActiveTab] = useState("description");
+  
+  // Review State
+  const [reviews, setReviews] = useState([
+    { id: 1, name: "Anil Kumar", rating: 5, date: "Feb 01, 2026", comment: "Excellent quality rice. The grains are long and fragrant." },
+    { id: 2, name: "Sita Sharma", rating: 4, date: "Jan 28, 2026", comment: "Good harvest, but delivery took 3 days instead of 2." }
+  ]);
+  const [newComment, setNewComment] = useState("");
+  const [newRating, setNewRating] = useState(5);
 
   if (!product) return null;
 
-  // FIXED: Standardized Helper function for adding to cart
   const handleAddToCart = async () => {
-    // 1. We must ensure the ID is a string and mapped correctly for the backend
     const standardizedProduct = {
       ...product,
-      id: String(product._id || product.id), // Ensure ID is a string for MongoDB findIndex
-      productId: String(product._id || product.id) // Matches your backend productId field
+      id: String(product._id || product.id),
+      productId: String(product._id || product.id)
     };
 
     try {
-      // 2. Call the context function (which now handles the axios post)
       await addToCart(standardizedProduct);
-      
-      // 3. Only navigate after the database confirms success
       navigate("/cart");
     } catch (error) {
-      // This will catch if the alert in your context is triggered
       console.error("Cart sync failed:", error);
     }
+  };
+
+  const handleAddReview = (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    const review = {
+      id: Date.now(),
+      name: "Guest User", 
+      rating: newRating,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      comment: newComment
+    };
+    setReviews([review, ...reviews]);
+    setNewComment("");
   };
 
   return (
@@ -45,7 +60,7 @@ const ProductDetails = () => {
           </button>
           <div className="flex items-center gap-2">
             <Leaf className="text-emerald-400" size={20} />
-            <span className="font-black tracking-tighter text-lg">AGRIWISE</span>
+            <span className="font-black tracking-tighter text-lg uppercase">AGRIWISE</span>
           </div>
         </div>
         <div className="flex gap-4">
@@ -55,19 +70,35 @@ const ProductDetails = () => {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-6">
+        {/* --- Upper Section: Product Info and Image --- */}
         <div className="flex flex-col lg:flex-row gap-10">
           
-          {/* --- Left: Image Gallery --- */}
+          {/* --- Left: Image Gallery (Defined aspect ratio to prevent "too long" image) --- */}
           <div className="lg:w-1/2 lg:sticky lg:top-24 h-fit">
-            <div className="relative group rounded-3xl overflow-hidden bg-slate-100 border border-slate-200">
+            <div className="relative group rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 aspect-square max-h-[500px]">
               <img 
                 src={product.imageUrl} 
                 alt={product.crop}
-                className="w-full h-[400px] lg:h-[550px] object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-4 left-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
                 Verified Harvest
               </div>
+            </div>
+            
+            {/* Feature Trust Badges */}
+            <div className="grid grid-cols-4 gap-2 mt-4">
+              {[
+                { icon: <Truck size={18} />, label: "Fast" },
+                { icon: <ShieldCheck size={18} />, label: "Secure" },
+                { icon: <Leaf size={18} />, label: "Organic" },
+                { icon: <CheckCircle2 size={18} />, label: "Tested" }
+              ].map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center p-2 rounded-2xl bg-slate-50 text-center border border-slate-100">
+                  <div className="text-emerald-600 mb-1">{item.icon}</div>
+                  <span className="text-[8px] font-bold text-slate-500 uppercase">{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -82,11 +113,11 @@ const ProductDetails = () => {
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className={`${i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
+                    <Star key={i} size={16} className={`${i < Math.floor(product.rating || 4) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
                   ))}
                 </div>
-                <span className="text-emerald-600 text-sm font-bold hover:underline cursor-pointer">
-                  {product.rating} (112 ratings)
+                <span className="text-emerald-600 text-sm font-bold">
+                  {product.rating || 4.5} (112 ratings)
                 </span>
               </div>
             </div>
@@ -104,35 +135,16 @@ const ProductDetails = () => {
               </p>
             </div>
 
-            {/* Service Icons */}
-            <div className="grid grid-cols-4 gap-2 py-4">
-              {[
-                { icon: <Truck />, label: "Fast Delivery" },
-                { icon: <ShieldCheck />, label: "Quality Check" },
-                { icon: <Leaf />, label: "100% Organic" },
-                { icon: <CheckCircle2 />, label: "Free Returns" }
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
-                    {item.icon}
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase">{item.label}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-8 mt-4">
-              <section>
-                <h3 className="font-black text-lg border-b-2 border-emerald-500 w-fit pb-1 mb-4">Product Specifications</h3>
-                <table className="w-full text-sm text-slate-600">
-                  <tbody>
-                    <tr className="border-b border-slate-50"><td className="py-2 font-bold w-1/3">Farmer</td><td>{product.farmer}</td></tr>
-                    <tr className="border-b border-slate-50"><td className="py-2 font-bold">Origin</td><td>{product.location}, India</td></tr>
-                    <tr className="border-b border-slate-50"><td className="py-2 font-bold">Quantity Available</td><td>{product.quantity} Quintals</td></tr>
-                    <tr className="border-b border-slate-50"><td className="py-2 font-bold">Grade</td><td>Grade A (Export Quality)</td></tr>
-                  </tbody>
-                </table>
-              </section>
+            <div className="space-y-4 mt-2">
+              <h3 className="font-black text-lg border-b-2 border-emerald-500 w-fit pb-1">Product Specifications</h3>
+              <table className="w-full text-sm text-slate-600">
+                <tbody>
+                  <tr className="border-b border-slate-50"><td className="py-2 font-bold w-1/3">Farmer</td><td>{product.farmer}</td></tr>
+                  <tr className="border-b border-slate-50"><td className="py-2 font-bold">Origin</td><td>{product.location}, India</td></tr>
+                  <tr className="border-b border-slate-50"><td className="py-2 font-bold">Stock</td><td>{product.quantity} Quintals</td></tr>
+                  <tr className="border-b border-slate-50"><td className="py-2 font-bold">Grade</td><td>Grade A (Export Quality)</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -143,34 +155,82 @@ const ProductDetails = () => {
               <p className="text-emerald-600 text-sm font-bold mt-2 flex items-center gap-1 underline cursor-pointer">
                 FREE Delivery <ChevronRight size={14} />
               </p>
-              <p className="text-slate-600 text-sm mt-4">Delivery by <span className="font-black">Monday, Feb 9</span></p>
               
               <div className="my-6 space-y-3">
                 <p className="text-emerald-700 text-xl font-bold">In Stock</p>
                 <div className="bg-slate-100 p-2 rounded-lg flex items-center justify-between text-sm font-bold">
                   <span>Quantity:</span>
                   <select className="bg-transparent outline-none">
-                    {[...Array(10)].map((_, i) => <option key={i+1}>{i+1} Quintal</option>)}
+                    {[...Array(5)].map((_, i) => <option key={i+1}>{i+1} Quintal</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                <button 
-                  onClick={handleAddToCart}
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95"
-                >
+                <button onClick={handleAddToCart} className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95">
                   Add to Cart
                 </button>
                 <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95">
                   Buy Now
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <div className="mt-6 flex items-center gap-3 text-xs text-slate-500">
-                <ShieldCheck size={16} className="text-slate-400" />
-                <span>Secure transaction handled by AgriWise.</span>
-              </div>
+        {/* --- Bottom Section: Reviews (Comes at the bottom when scrolling) --- */}
+        <div className="mt-16 border-t border-slate-100 pt-10 pb-10">
+          <div className="flex flex-col lg:flex-row gap-10">
+            {/* Review Form */}
+            <div className="lg:w-1/3">
+              <form onSubmit={handleAddReview} className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 shadow-sm">
+                <h4 className="font-black text-emerald-800 text-lg mb-4 uppercase tracking-tighter">Share your feedback</h4>
+                <div className="flex gap-2 mb-4">
+                  {[1, 2, 3, 4, 5].map(num => (
+                    <Star 
+                      key={num} 
+                      size={24} 
+                      onClick={() => setNewRating(num)}
+                      className={`cursor-pointer transition-all ${num <= newRating ? 'text-yellow-400 fill-yellow-400 scale-110' : 'text-slate-300'}`} 
+                    />
+                  ))}
+                </div>
+                <textarea 
+                  placeholder="How was the harvest quality?"
+                  className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none h-24 mb-4"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <button type="submit" className="w-full bg-emerald-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-800 transition-all">
+                  Post Review <Send size={16} />
+                </button>
+              </form>
+            </div>
+
+            {/* Review List */}
+            <div className="lg:w-2/3 space-y-6">
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+                Customer Feedbacks <span className="text-emerald-600 text-sm">({reviews.length})</span>
+              </h3>
+              {reviews.map(review => (
+                <div key={review.id} className="border-b border-slate-50 pb-6 flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                    <User size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h5 className="font-bold text-slate-800">{review.name}</h5>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase">{review.date}</span>
+                    </div>
+                    <div className="flex mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={12} className={`${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-100'}`} />
+                      ))}
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed italic">"{review.comment}"</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -178,15 +238,10 @@ const ProductDetails = () => {
 
       {/* --- Mobile Fixed Bottom Bar --- */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 flex gap-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <button 
-          onClick={handleAddToCart}
-          className="flex-1 bg-yellow-400 py-3 rounded-xl font-black text-sm active:scale-95"
-        >
-          Add to Cart
-        </button>
-        <button className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-black text-sm active:scale-95">Buy Now</button>
-        <button className="p-3 border border-slate-200 rounded-xl">
-           <Phone size={20} className="text-emerald-700" />
+        <button onClick={handleAddToCart} className="flex-1 bg-yellow-400 py-3 rounded-xl font-black text-sm">Add to Cart</button>
+        <button className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-black text-sm">Buy Now</button>
+        <button className="p-3 border border-slate-200 rounded-xl text-emerald-700">
+           <Phone size={20} />
         </button>
       </div>
     </div>
