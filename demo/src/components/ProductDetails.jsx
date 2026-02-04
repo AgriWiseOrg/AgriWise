@@ -6,10 +6,12 @@ import {
   Leaf, Info, CheckCircle2, Truck,
   ChevronRight, Share2, Heart, Award
 } from "lucide-react";
+import { useCart } from "./CartContext"; // Added Import
 
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { state: product } = useLocation();
+  const { addToCart } = useCart(); // Access the function from Context
   const [activeTab, setActiveTab] = useState("description");
 
   if (!product) return null;
@@ -18,6 +20,12 @@ const ProductDetails = () => {
     { id: 1, user: "Anil Kumar", rating: 5, comment: "Excellent quality rice. Very fresh!", date: "2 days ago" },
     { id: 2, user: "Meera J.", rating: 4, comment: "Good grain size, but shipping took an extra day.", date: "1 week ago" }
   ];
+
+  // Helper function for adding to cart
+  const handleAddToCart = () => {
+    addToCart(product);
+    navigate("/cart");
+  };
 
   return (
     <div className="bg-white min-h-screen pb-20 font-sans text-slate-900">
@@ -164,7 +172,10 @@ const ProductDetails = () => {
               </div>
 
               <div className="flex flex-col gap-3">
-                <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95">
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95"
+                >
                   Add to Cart
                 </button>
                 <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95">
@@ -183,7 +194,12 @@ const ProductDetails = () => {
 
       {/* --- Mobile Fixed Bottom Bar (Amazon App Style) --- */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 flex gap-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <button className="flex-1 bg-yellow-400 py-3 rounded-xl font-black text-sm active:scale-95">Add to Cart</button>
+        <button 
+          onClick={handleAddToCart}
+          className="flex-1 bg-yellow-400 py-3 rounded-xl font-black text-sm active:scale-95"
+        >
+          Add to Cart
+        </button>
         <button className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-black text-sm active:scale-95">Buy Now</button>
         <button className="p-3 border border-slate-200 rounded-xl">
            <Phone size={20} className="text-emerald-700" />
