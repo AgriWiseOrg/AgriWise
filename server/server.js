@@ -20,11 +20,14 @@ const financeRoutes = require('./routes/finance');
 // ================= MIDDLEWARE (CRITICAL ORDER) =================
 // These must be defined BEFORE any routes to process data correctly
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
 
 // ================= API ROUTES =================
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/finance', financeRoutes);
+app.use('/api/govt-schemes', require('./routes/govtSchemes'));
+app.use('/api/farming-tips', require('./routes/farmingTips'));
+app.use('/api/latest-updates', require('./routes/latestUpdates'));
 
 // ================= DATABASE CONNECTION =================
 mongoose.connect(process.env.MONGO_URI)

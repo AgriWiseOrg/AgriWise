@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const Scheme = require('../models/Scheme');
+const SchemeApplication = require('../models/SchemeApplication');
 
-// 1. ADD THIS: GET all schemes (This fixes the 404)
+// 1. GET all schemes
 router.get('/', async (req, res) => {
   try {
     const schemes = await Scheme.find({});
@@ -11,7 +12,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 2. KEEP THIS: Add a new scheme
+// 2. Add a new scheme
 router.post('/add', async (req, res) => {
   try {
     const newScheme = new Scheme(req.body);
@@ -22,13 +23,52 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// 3. KEEP THIS: Remove a scheme
+// 3. Remove a scheme
 router.delete('/:id', async (req, res) => {
   try {
     await Scheme.findByIdAndDelete(req.params.id);
     res.json({ message: "Scheme deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+// 4. Submit Application
+router.post('/apply', async (req, res) => {
+  try {
+    const newApp = new SchemeApplication({
+      farmerEmail: req.body.farmerEmail,
+      schemeName: req.body.schemeName,
+      schemeId: req.body.schemeId,
+      landSize: req.body.landSize
+    });
+    await newApp.save();
+    res.status(201).json({ message: "Application submitted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to submit application" });
+  }
+});
+
+// 5. Get User Applications
+router.get('/user-applications', async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email required" });
+    const apps = await SchemeApplication.find({ farmerEmail: email });
+    res.json(apps);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch applications" });
+  }
+});
+
+// 6. Get All Applications (Admin)
+router.get('/all-applications', async (req, res) => {
+  try {
+    const apps = await SchemeApplication.find().sort({ appliedAt: -1 });
+    res.json(apps);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch applications" });
   }
 });
 
