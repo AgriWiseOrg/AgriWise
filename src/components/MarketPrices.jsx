@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, TrendingUp, MapPin, Calendar, CheckCircle, Loader2, BarChart2, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const PRODUCTS = ['Wheat', 'Rice', 'Corn', 'Potato', 'Tomato', 'Onion', 'Soybean'];
+const PRODUCTS = [
+  'Wheat', 'Rice', 'Corn', 'Potato', 'Tomato', 'Onion', 'Soybean',
+  'Cotton', 'Sugarcane', 'Mustard', 'Barley', 'Pulse', 'Jute',
+  'Groundnut', 'Sunflower', 'Tea', 'Coffee'
+];
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
