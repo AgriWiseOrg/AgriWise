@@ -1,183 +1,212 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from './CartContext'; // Ensure this path is correct
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  TrendingUp, Sprout, Landmark, ShoppingBag, 
+  CloudSun, LifeBuoy, Search, LogOut, ShoppingCart, 
+  ChevronRight, MapPin, Wind
+} from 'lucide-react';
+import { useCart } from './CartContext';
 
 const FrontPage = ({ onLogout }) => {
   const navigate = useNavigate();
-  const { totalItems } = useCart(); // Automatically get count from global state
-  const [weatherData, setWeatherData] = useState({ temp: '--', icon: '☀️' });
+  const { totalItems } = useCart();
+  const [weatherData, setWeatherData] = useState({ temp: '24', icon: <CloudSun /> });
+  const [isScrolled, setIsScrolled] = useState(false);
 
+  // Monitor scroll for navbar effect
   useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const res = await fetch('http://localhost:5001/api/support/weather');
-        const json = await res.json();
-        if (json.success) setWeatherData({ temp: json.data.temp, icon: json.data.icon });
-      } catch (err) {
-        console.error("Failed to fetch header weather", err);
-      }
-    };
-    fetchWeather();
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Get dynamic greeting
+  const menuItems = [
+    { title: 'Market Prices', icon: <TrendingUp />, desc: 'Real-time crop rates', color: 'bg-blue-500', path: '/market-prices', badge: 'Live' },
+    { title: 'My Crops', icon: <Sprout />, desc: 'Track your growth', color: 'bg-emerald-500', path: '/my-crops' },
+    { title: 'Govt Schemes', icon: <Landmark />, desc: 'Subsidy & Grants', color: 'bg-orange-500', path: '/govt-schemes', badge: 'New' },
+    { title: 'Marketplace', icon: <ShoppingBag />, desc: 'Equipment & Seeds', color: 'bg-purple-500', path: '/marketplace' },
+    { title: 'Weather', icon: <CloudSun />, desc: 'Precision forecast', color: 'bg-sky-500', path: '/weather' },
+    { title: 'Support', icon: <LifeBuoy />, desc: 'Expert help', color: 'bg-rose-500', path: '/support' },
+  ];
+
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
 
-  const menuItems = [
-    { title: 'Market Prices', icon: '📈', desc: 'Real-time crop rates', color: 'text-blue-600', bg: 'bg-blue-50', path: '/market-prices', badge: 'Live' },
-    { title: 'My Crops', icon: '🌾', desc: 'Track your growth', color: 'text-emerald-600', bg: 'bg-emerald-50', path: '/my-crops' },
-    { title: 'Govt Schemes', icon: '🏛️', desc: 'Subsidy & Grants', color: 'text-amber-600', bg: 'bg-amber-50', path: '/govt-schemes', badge: 'New' },
-    { title: 'Marketplace', icon: '🤝', desc: 'Buy/Sell Equipment', color: 'text-purple-600', bg: 'bg-purple-50', path: '/marketplace' },
-    { title: 'Weather', icon: '☀️', desc: 'Precision forecasting', color: 'text-sky-600', bg: 'bg-sky-50', path: '/weather' },
-    { title: 'Support', icon: '📞', desc: 'Expert consultation', color: 'text-rose-600', bg: 'bg-rose-50', path: '/support' },
-  ];
-
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      {/* --- Modern Top Nav --- */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-emerald-700 p-2 rounded-lg">
-              <span className="text-white text-xl">🌱</span>
-            </div>
-            <div>
-              <h2 className="text-xl font-black text-slate-800 tracking-tight leading-none">AgriWise</h2>
-              <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Smart Farming</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 font-sans selection:bg-emerald-100">
+      
+      {/* --- Dynamic Background Blurs --- */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-emerald-50 blur-[120px]" />
+        <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] rounded-full bg-blue-50 blur-[100px]" />
+      </div>
 
-          <div className="flex items-center gap-3">
-            {/* Cart Button with Animated Badge */}
-            <button
-              onClick={() => navigate('/cart')}
-              className="group relative p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-2xl border border-slate-200 transition-all"
-            >
-              <span className="text-xl group-hover:scale-110 transition-transform block">🛒</span>
+      {/* --- Premium Navbar --- */}
+      <nav className={`sticky top-0 z-[100] transition-all duration-300 px-6 py-4 ${
+        isScrolled ? 'bg-white/70 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'bg-transparent'
+      }`}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+              <Sprout className="text-white w-6 h-6" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
+              AgriWise
+            </span>
+          </motion.div>
+
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/cart')} className="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
+              <ShoppingCart className="w-6 h-6 text-slate-700" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white animate-bounce">
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
                   {totalItems}
-                </span>
+                </motion.span>
               )}
             </button>
-
-            <button
-              onClick={onLogout}
-              className="hidden sm:block bg-slate-900 text-white px-5 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
-            >
-              Logout
+            <button onClick={onLogout} className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition-all">
+              <LogOut className="w-6 h-6" />
             </button>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-10">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-32">
+        
+        {/* --- Header Section --- */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+              {greeting}, <span className="text-emerald-600">Farmer</span>
+            </h1>
+            <p className="text-slate-500 mt-2 text-lg font-medium tracking-tight">
+              Let's optimize your harvest today.
+            </p>
+          </motion.div>
 
-        {/* --- Welcome Header --- */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black text-slate-900">{greeting}, Farmer! 👋</h1>
-            <p className="text-slate-500 mt-2 font-medium">Here is what's happening on your farm today.</p>
-          </div>
-
-          <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="px-4 py-2 text-center">
-              <p className="text-[10px] text-slate-400 font-black uppercase">Weather</p>
-              <p className="font-bold text-slate-800 flex items-center gap-1">{weatherData.temp}°C <span className="text-sky-500">{weatherData.icon}</span></p>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center gap-6 bg-white border border-slate-100 p-4 rounded-3xl shadow-xl shadow-slate-200/50"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-sky-50 text-sky-600 rounded-2xl">
+                <CloudSun className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Temperature</p>
+                <p className="text-xl font-bold text-slate-800">{weatherData.temp}°C</p>
+              </div>
             </div>
-            <div className="w-[1px] h-8 bg-slate-200"></div>
-            <div className="px-4 py-2 text-center">
-              <p className="text-[10px] text-slate-400 font-black uppercase">Air Quality</p>
-              <p className="font-bold text-emerald-600">Good</p>
+            <div className="w-[1px] h-10 bg-slate-100" />
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                <Wind className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Air Quality</p>
+                <p className="text-xl font-bold text-emerald-600">Pure</p>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </header>
 
-        {/* --- Interactive Search --- */}
-        <div className="relative group max-w-2xl">
-          <input
-            type="text"
-            placeholder="Search for crops, mandi rates, or tools..."
-            className="w-full bg-white border-2 border-slate-100 rounded-[2rem] py-5 px-14 shadow-xl shadow-slate-100/50 focus:border-emerald-500 outline-none transition-all text-lg font-medium"
+        {/* --- Search Bar --- */}
+        <div className="relative mb-12 group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Search for crops, mandi rates, or expert advice..."
+            className="w-full bg-white border border-slate-200 rounded-2xl py-5 px-14 shadow-sm focus:shadow-xl focus:border-emerald-500 transition-all outline-none text-lg"
           />
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl group-focus-within:scale-110 transition-transform">🔍</span>
         </div>
 
-        {/* --- High Impact Banner --- */}
-        <div className="group relative bg-slate-900 rounded-[3rem] p-8 md:p-12 text-white overflow-hidden shadow-2xl shadow-emerald-200">
-          <div className="relative z-10 max-w-xl space-y-4">
-            <span className="inline-block bg-emerald-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-              Market Alert
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black leading-tight">
-              Wheat prices are <span className="text-emerald-400 italic">surging</span> in Kerala.
+        {/* --- Editorial Style Hero --- */}
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-10 md:p-16 text-white shadow-2xl shadow-emerald-900/20 mb-12"
+        >
+          <div className="relative z-10 max-w-2xl">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="bg-emerald-500 h-2 w-2 rounded-full animate-pulse" />
+              <span className="text-emerald-400 font-bold text-sm uppercase tracking-[0.2em]">Market Intelligence</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold leading-[1.1] mb-6">
+              Wheat prices are up <span className="text-emerald-400 italic">12%</span> in your region.
             </h2>
-            <p className="text-slate-400 text-lg font-medium">Sell now to maximize your profit by up to 12%.</p>
-            <button className="bg-white text-slate-900 font-black px-8 py-4 rounded-2xl hover:bg-emerald-50 transition-all flex items-center gap-2 group-hover:gap-4">
-              Analyze Trends <span>→</span>
+            <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-2xl transition-all flex items-center gap-3 group">
+              View Market Trends
+              <ChevronRight className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
-          {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none"></div>
-          <div className="absolute -right-12 -bottom-12 text-[15rem] opacity-10 rotate-12 transition-transform group-hover:rotate-0 duration-1000">🌾</div>
+          {/* Abstract Art */}
+          <div className="absolute top-0 right-0 w-full h-full opacity-20">
+            <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-500 rounded-full blur-[100px]" />
+          </div>
+          <Sprout className="absolute -right-10 -bottom-10 w-64 h-64 text-emerald-500/10 rotate-12" />
+        </motion.div>
+
+        {/* --- Glass Navigation Grid --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence>
+            {menuItems.map((item, i) => (
+              <motion.button
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                onClick={() => navigate(item.path)}
+                className="group relative bg-white border border-slate-100 p-8 rounded-[2rem] text-left hover:border-emerald-100 hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300 overflow-hidden"
+              >
+                <div className={`${item.color} w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-${item.color.split('-')[1]}-100 group-hover:scale-110 transition-transform`}>
+                  {React.cloneElement(item.icon, { size: 28 })}
+                </div>
+                
+                {item.badge && (
+                  <span className="absolute top-8 right-8 bg-slate-50 text-slate-600 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-slate-100">
+                    {item.badge}
+                  </span>
+                )}
+
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">{item.title}</h3>
+                <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                
+                <div className="mt-8 flex items-center gap-2 text-emerald-600 font-bold text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                  Enter Dashboard <ChevronRight size={16} />
+                </div>
+              </motion.button>
+            ))}
+          </AnimatePresence>
         </div>
-
-        {/* --- Navigation Grid --- */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32">
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => navigate(item.path)}
-              className="group relative flex flex-col items-start bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-left overflow-hidden"
-            >
-              {item.badge && (
-                <span className="absolute top-4 right-4 bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded-lg uppercase">
-                  {item.badge}
-                </span>
-              )}
-
-              <div className={`${item.bg} h-16 w-16 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-inner group-hover:scale-110 transition-transform`}>
-                {item.icon}
-              </div>
-
-              <h4 className="font-black text-slate-800 text-2xl tracking-tight">{item.title}</h4>
-              <p className="text-slate-500 font-medium mt-2 leading-relaxed">{item.desc}</p>
-
-              <div className="mt-6 flex items-center gap-2 text-emerald-600 font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                Open Dashboard <span>→</span>
-              </div>
-            </button>
-          ))}
-        </section>
       </main>
 
-      {/* --- Floating Bottom Nav --- */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
-        <div className="bg-slate-900/90 backdrop-blur-xl text-white rounded-[2rem] py-4 px-8 flex justify-between items-center shadow-2xl border border-white/10 ring-1 ring-white/5">
-          <button onClick={() => navigate('/')} className="text-emerald-400 flex flex-col items-center gap-1 transition-all">
-            <span className="text-2xl">🏠</span>
-            <span className="text-[8px] font-black uppercase tracking-tighter">Home</span>
+      {/* --- Floating "Command Center" Nav --- */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-lg">
+        <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-3 flex justify-between items-center shadow-2xl">
+          <NavButton icon={<TrendingUp size={20} />} label="Stats" active />
+          <NavButton icon={<ShoppingBag size={20} />} label="Shop" />
+          
+          <button className="bg-emerald-500 hover:bg-emerald-400 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 transition-transform active:scale-90 -mt-2 border-4 border-[#FDFDFD]">
+            <Sprout size={28} />
           </button>
-          <button onClick={() => navigate('/marketplace')} className="opacity-50 hover:opacity-100 flex flex-col items-center gap-1 transition-all">
-            <span className="text-2xl">📦</span>
-            <span className="text-[8px] font-black uppercase tracking-tighter">Market</span>
-          </button>
-          <button className="bg-emerald-500 hover:bg-emerald-400 p-5 rounded-full -mt-20 border-[8px] border-[#f8fafc] shadow-xl transition-all active:scale-90 text-3xl">
-            ➕
-          </button>
-          <button onClick={() => navigate('/support')} className="opacity-50 hover:opacity-100 flex flex-col items-center gap-1 transition-all">
-            <span className="text-2xl">💬</span>
-            <span className="text-[8px] font-black uppercase tracking-tighter">Chat</span>
-          </button>
-          <button onClick={() => navigate('/cart')} className="opacity-50 hover:opacity-100 flex flex-col items-center gap-1 transition-all">
-            <span className="text-2xl">🛒</span>
-            <span className="text-[8px] font-black uppercase tracking-tighter">Cart</span>
-          </button>
+          
+          <NavButton icon={<LifeBuoy size={20} />} label="Help" />
+          <NavButton icon={<MapPin size={20} />} label="Local" />
         </div>
       </div>
     </div>
   );
 };
+
+// Helper component for floating nav
+const NavButton = ({ icon, label, active = false }) => (
+  <button className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all ${active ? 'text-emerald-400' : 'text-slate-400 hover:text-white'}`}>
+    {icon}
+    <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
+  </button>
+);
 
 export default FrontPage;
