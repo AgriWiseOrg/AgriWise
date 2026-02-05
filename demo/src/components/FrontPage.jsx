@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  TrendingUp, Sprout, Landmark, ShoppingBag, 
-  CloudSun, LifeBuoy, Search, LogOut, ShoppingCart, 
+import {
+  TrendingUp, Sprout, Landmark, ShoppingBag,
+  CloudSun, LifeBuoy, Search, LogOut, ShoppingCart,
   ChevronRight, MapPin, Droplets, RefreshCw, Wind, Clock
 } from 'lucide-react';
 import { useCart } from './CartContext';
@@ -11,7 +11,7 @@ import { useCart } from './CartContext';
 const FrontPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const { totalItems } = useCart();
-  
+
   const [weatherData, setWeatherData] = useState({ temp: '--', humidity: '--', wind: '--' });
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loadingWeather, setLoadingWeather] = useState(true);
@@ -26,15 +26,18 @@ const FrontPage = ({ onLogout }) => {
     setLoadingWeather(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`
+        `http://localhost:5001/api/support/weather?lat=${lat}&lon=${lon}`
       );
-      const data = await response.json();
-      setWeatherData({
-        temp: Math.round(data.current.temperature_2m),
-        humidity: data.current.relative_humidity_2m + '%',
-        wind: Math.round(data.current.wind_speed_10m) + ' km/h'
-      });
+      const json = await response.json();
+      if (json.success) {
+        setWeatherData({
+          temp: Math.round(json.data.temp),
+          humidity: json.data.humidity + '%',
+          wind: Math.round(json.data.wind) + ' km/h'
+        });
+      }
     } catch (error) {
+      console.error("Home weather fetch failed", error);
       setWeatherData({ temp: '24', humidity: '62%', wind: '12 km/h' });
     } finally {
       setLoadingWeather(false);
@@ -77,9 +80,8 @@ const FrontPage = ({ onLogout }) => {
       </div>
 
       {/* Navigation */}
-      <nav className={`sticky top-0 z-[100] transition-all duration-300 px-6 py-4 ${
-        isScrolled ? 'bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-md' : 'bg-transparent'
-      }`}>
+      <nav className={`sticky top-0 z-[100] transition-all duration-300 px-6 py-4 ${isScrolled ? 'bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-md' : 'bg-transparent'
+        }`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200/50">
@@ -107,20 +109,20 @@ const FrontPage = ({ onLogout }) => {
       </nav>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-32">
-        
+
         {/* Header & Weather Widget */}
         <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[10px] font-black tracking-widest uppercase shadow-sm">Dashboard</span>
-                <span className="text-slate-500 text-xs font-bold">{currentTime.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+              <span className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[10px] font-black tracking-widest uppercase shadow-sm">Dashboard</span>
+              <span className="text-slate-500 text-xs font-bold">{currentTime.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter">
               {greeting}, <br /><span className="text-emerald-600">Farmer</span>
             </h1>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
             className="bg-white border-2 border-slate-200 rounded-[2.5rem] p-1.5 shadow-xl shadow-slate-200/60"
           >
@@ -155,16 +157,16 @@ const FrontPage = ({ onLogout }) => {
 
               <div className="flex items-center gap-6">
                 <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 text-blue-600">
-                        <Droplets size={14} strokeWidth={3} />
-                        <span className="text-sm font-black text-slate-800">{weatherData.humidity}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sky-600">
-                        <Wind size={14} strokeWidth={3} />
-                        <span className="text-sm font-black text-slate-800">{weatherData.wind}</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <Droplets size={14} strokeWidth={3} />
+                    <span className="text-sm font-black text-slate-800">{weatherData.humidity}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sky-600">
+                    <Wind size={14} strokeWidth={3} />
+                    <span className="text-sm font-black text-slate-800">{weatherData.wind}</span>
+                  </div>
                 </div>
-                <button 
+                <button
                   onClick={() => navigator.geolocation.getCurrentPosition((pos) => fetchLiveWeather(pos.coords.latitude, pos.coords.longitude))}
                   className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
                 >
@@ -178,8 +180,8 @@ const FrontPage = ({ onLogout }) => {
         {/* Search Bar */}
         <div className="relative mb-12 group">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search for crops, mandi rates, or expert advice..."
             className="w-full bg-white border-2 border-slate-200 rounded-[2rem] py-6 px-16 shadow-lg shadow-slate-200/40 focus:shadow-emerald-500/10 focus:border-emerald-500 transition-all outline-none text-lg font-medium"
           />
@@ -190,7 +192,7 @@ const FrontPage = ({ onLogout }) => {
         </div>
 
         {/* Hero Card */}
-        <motion.div 
+        <motion.div
           whileHover={{ y: -5 }}
           className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-10 md:p-16 text-white shadow-2xl shadow-slate-900/30 mb-12 border border-slate-800"
         >
@@ -250,21 +252,27 @@ const FrontPage = ({ onLogout }) => {
       {/* Floating Navigation */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-lg">
         <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-3 flex justify-between items-center shadow-2xl shadow-slate-900/40">
-          <NavButton icon={<TrendingUp size={22} />} label="Stats" active />
-          <NavButton icon={<ShoppingBag size={22} />} label="Shop" />
-          <button className="bg-emerald-500 hover:bg-emerald-400 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/40 transition-transform active:scale-90 -mt-8 border-[6px] border-[#F8FAFC]">
+          <NavButton icon={<TrendingUp size={22} />} label="Stats" active onClick={() => navigate('/market-prices')} />
+          <NavButton icon={<ShoppingBag size={22} />} label="Shop" onClick={() => navigate('/marketplace')} />
+          <button
+            onClick={() => navigate('/')}
+            className="bg-emerald-500 hover:bg-emerald-400 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/40 transition-transform active:scale-90 -mt-8 border-[6px] border-[#F8FAFC]"
+          >
             <Sprout size={32} />
           </button>
-          <NavButton icon={<LifeBuoy size={22} />} label="Help" />
-          <NavButton icon={<MapPin size={22} />} label="Local" />
+          <NavButton icon={<LifeBuoy size={22} />} label="Help" onClick={() => navigate('/support')} />
+          <NavButton icon={<MapPin size={22} />} label="Local" onClick={() => navigate('/weather')} />
         </div>
       </div>
     </div>
   );
 };
 
-const NavButton = ({ icon, label, active = false }) => (
-  <button className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all ${active ? 'text-emerald-400' : 'text-slate-400 hover:text-white'}`}>
+const NavButton = ({ icon, label, active = false, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all ${active ? 'text-emerald-400' : 'text-slate-400 hover:text-white'}`}
+  >
     {icon}
     <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
   </button>

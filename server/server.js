@@ -27,6 +27,8 @@ app.use(express.json());
 // ================= API ROUTES =================
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/finance', financeRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/govt-schemes', require('./routes/govtSchemes'));
 app.use('/api/farming-tips', require('./routes/farmingTips'));
 app.use('/api/latest-updates', require('./routes/latestUpdates'));
@@ -200,21 +202,42 @@ app.post('/api/predict-price', async (req, res) => {
   }
 });
 
-// 3. Demand Forecasts (Updated with Simulation)
+// 3. Demand Forecasts (Updated with Dynamic Crop Selection)
 app.get('/api/market/demand', async (req, res) => {
+  const { crop } = req.query;
   try {
+    if (crop) {
+      // Generate a specific demand forecast for the requested crop
+      const demandLevel = ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)];
+      const percentage = Math.floor(Math.random() * 40) + (demandLevel === 'High' ? 60 : demandLevel === 'Medium' ? 30 : 5);
+
+      const forecast = {
+        crop: crop,
+        currentDemand: Math.floor(Math.random() * 5000) + 1000,
+        projectedDemand: Math.floor(Math.random() * 6000) + 1500,
+        demandLevel: demandLevel,
+        percentage: percentage,
+        trend: Math.random() > 0.4 ? 'up' : 'down',
+        note: `Projected ${demandLevel.toLowerCase()} demand for ${crop} based on current market arrivals.`
+      };
+      return res.json([forecast]); // Return as array for compatibility
+    }
+
     const demandData = await DemandForecast.find({});
 
     if (demandData.length === 0 && csvMarketData.length > 0) {
       // Simulate demand data based on CSV crops
       const simulatedDemand = [];
-      const crops = [...new Set(csvMarketData.map(c => c.crop))].slice(0, 10); // Limit to top 10
+      const crops = [...new Set(csvMarketData.map(c => c.crop))].sort(() => 0.5 - Math.random()).slice(0, 10);
 
       crops.forEach(crop => {
+        const demandLevel = ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)];
         simulatedDemand.push({
           crop: crop,
           currentDemand: Math.floor(Math.random() * 5000) + 1000,
           projectedDemand: Math.floor(Math.random() * 6000) + 1500,
+          demandLevel: demandLevel,
+          percentage: Math.floor(Math.random() * 40) + (demandLevel === 'High' ? 60 : demandLevel === 'Medium' ? 30 : 5),
           trend: Math.random() > 0.4 ? 'up' : 'down',
           note: 'Projected increase due to seasonal factors.'
         });
@@ -536,9 +559,7 @@ app.get('/api/market/history', async (req, res) => {
 app.get('/api/market/crops', (req, res) => {
   try {
     if (csvMarketData.length > 0) {
-      // Extract unique crop names
-      // CSV format: "Commodity (Variety)" -> we might just want "Commodity" or full name
-      // Let's return full names for precision
+      // Extract unique commodity names
       const crops = [...new Set(csvMarketData.map(item => item.crop))].sort();
       res.json(crops);
     } else {

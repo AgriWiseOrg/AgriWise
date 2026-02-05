@@ -24,6 +24,7 @@ const MarketPrices = () => {
 
   const [historyData, setHistoryData] = useState(null);
   const [selectedCrop, setSelectedCrop] = useState('Wheat');
+  const [selectedDemandCrop, setSelectedDemandCrop] = useState('Wheat');
   const [demandData, setDemandData] = useState([]);
   const [forecastData, setForecastData] = useState(null);
   const [loadingForecast, setLoadingForecast] = useState(false);
@@ -43,9 +44,11 @@ const MarketPrices = () => {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         setAvailableCrops(data);
-        setSelectedCrop(data[0]); // Select first available by default
+        setSelectedCrop(data[0]);
+        setSelectedDemandCrop(data[0]);
         fetchHistory(data[0]);
         fetchForecast(data[0]);
+        fetchDemand(data[0]);
       } else {
         // Fallback if empty
         fetchHistory('Wheat');
@@ -80,9 +83,12 @@ const MarketPrices = () => {
     }
   };
 
-  const fetchDemand = async () => {
+  const fetchDemand = async (crop = null) => {
     try {
-      const res = await fetch('http://localhost:5001/api/market/demand');
+      const url = crop
+        ? `http://localhost:5001/api/market/demand?crop=${encodeURIComponent(crop)}`
+        : 'http://localhost:5001/api/market/demand';
+      const res = await fetch(url);
       const data = await res.json();
       setDemandData(data);
     } catch (err) {
@@ -333,14 +339,16 @@ const MarketPrices = () => {
                     </div>
                   </div>
                   <select
-                    value={selectedCrop}
+                    value={selectedDemandCrop}
                     onChange={(e) => {
-                      setSelectedCrop(e.target.value);
-                      fetchForecast(e.target.value);
+                      const crop = e.target.value;
+                      setSelectedDemandCrop(crop);
+                      fetchForecast(crop);
+                      fetchDemand(crop);
                     }}
                     className="p-3 border rounded-xl bg-slate-50 font-bold text-slate-700 min-w-[150px] focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                   >
-                    {PRODUCTS.map(p => <option key={p} value={p}>{p}</option>)}
+                    {availableCrops.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
 
@@ -424,7 +432,7 @@ const MarketPrices = () => {
                 )}
               </div>
 
-              {/* Existing Demand Cards */}
+
 
             </div>
           )}
