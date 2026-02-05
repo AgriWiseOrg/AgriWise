@@ -32,9 +32,29 @@ const MarketPrices = () => {
   useEffect(() => {
     fetchPrices();
     fetchDemand();
-    fetchHistory('Wheat');
-    fetchForecast('Wheat');
+    fetchCrops(); // Fetch dynamic list
   }, []);
+
+  const [availableCrops, setAvailableCrops] = useState(PRODUCTS); // Fallback to constant
+
+  const fetchCrops = async () => {
+    try {
+      const res = await fetch('http://localhost:5001/api/market/crops');
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setAvailableCrops(data);
+        setSelectedCrop(data[0]); // Select first available by default
+        fetchHistory(data[0]);
+        fetchForecast(data[0]);
+      } else {
+        // Fallback if empty
+        fetchHistory('Wheat');
+        fetchForecast('Wheat');
+      }
+    } catch (err) {
+      console.error("Failed to fetch crops list", err);
+    }
+  };
 
   const fetchPrices = async () => {
     try {
@@ -50,7 +70,9 @@ const MarketPrices = () => {
 
   const fetchHistory = async (crop) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/market/history?crop=${crop}`);
+      // Handle crops with parentheses in URL
+      const encodedCrop = encodeURIComponent(crop);
+      const res = await fetch(`http://localhost:5001/api/market/history?crop=${encodedCrop}`);
       const data = await res.json();
       setHistoryData(data);
     } catch (err) {
@@ -72,7 +94,8 @@ const MarketPrices = () => {
   const fetchForecast = async (crop) => {
     setLoadingForecast(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/market/forecast-30-days?crop=${crop}`);
+      const encodedCrop = encodeURIComponent(crop);
+      const res = await fetch(`http://localhost:5001/api/market/forecast-30-days?crop=${encodedCrop}`);
       const data = await res.json();
       setForecastData(data);
     } catch (err) {
@@ -84,10 +107,18 @@ const MarketPrices = () => {
 
   // AI Prediction State
   const [formData, setFormData] = useState({
-    product: PRODUCTS[0],
+    product: '', // Will be set by effect
     region: REGIONS[0],
     month: MONTHS[new Date().getMonth()]
   });
+
+  // Update formData when availableCrops changes
+  useEffect(() => {
+    if (availableCrops.length > 0) {
+      setFormData(prev => ({ ...prev, product: availableCrops[0] }));
+    }
+  }, [availableCrops]);
+
   const [prediction, setPrediction] = useState(null);
   const [loadingPredict, setLoadingPredict] = useState(false);
 
@@ -175,13 +206,15 @@ const MarketPrices = () => {
                         <p className="text-3xl font-black text-slate-900">{item.price}</p>
                         <p className="text-xs text-slate-400">per Quintal</p>
                       </div>
-                      <div className={`flex items-center gap-1 font-bold ${item.trend === 'up' ? 'text-green-600' :
-                        item.trend === 'down' ? 'text-red-500' : 'text-slate-400'
-                        }`}>
-                        {item.trend === 'up' && '▲ Up'}
-                        {item.trend === 'down' && '▼ Down'}
-                        {item.trend === 'stable' && '• Stable'}
-                      </div>
+                      {item.trend && ['up', 'down', 'stable'].includes(item.trend) && (
+                        <div className={`flex items-center gap-1 font-bold ${item.trend === 'up' ? 'text-green-600' :
+                          item.trend === 'down' ? 'text-red-500' : 'text-slate-400'
+                          }`}>
+                          {item.trend === 'up' && '▲ Up'}
+                          {item.trend === 'down' && '▼ Down'}
+                          {item.trend === 'stable' && '• Stable'}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -202,7 +235,7 @@ const MarketPrices = () => {
                   }}
                   className="p-2 border rounded-lg bg-slate-50 font-bold text-slate-700"
                 >
-                  {PRODUCTS.map(p => <option key={p} value={p}>{p}</option>)}
+                  {availableCrops.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
 
@@ -421,7 +454,7 @@ const MarketPrices = () => {
                       value={formData.product}
                       onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                     >
-                      {PRODUCTS.map(p => <option key={p} value={p}>{p}</option>)}
+                      {availableCrops.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
 

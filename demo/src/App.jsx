@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 // General Components
 import LoginPage from './components/LoginPage';
+import LandingPage from './components/LandingPage';
 import FrontPage from './components/FrontPage';
 import MarketPrices from './components/MarketPrices';
 import MyCrops from './components/MyCrops';
@@ -58,15 +59,22 @@ function App() {
       <Router>
         <main className="antialiased text-gray-900">
           <Routes>
+            {/* Public Routes - Accessible to all */}
             <Route
               path="/login"
               element={!user ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />}
             />
 
+            {/* Logic: If user is logged in, '/' goes to Dashboard (FrontPage).
+                If NOT logged in, '/' goes to Landing Page. */}
+            <Route
+              path="/"
+              element={user ? <FrontPage onLogout={handleLogout} /> : <LandingPage />}
+            />
+
             {user ? (
               <>
-                {/* Main Routes */}
-                <Route path="/" element={<FrontPage onLogout={handleLogout} />} />
+                {/* Authenticated Routes */}
                 <Route path="/market-prices" element={<MarketPrices />} />
                 <Route path="/my-crops" element={<MyCrops user={user} />} />
                 <Route path="/govt-schemes" element={<GovtSchemes />} />
@@ -95,6 +103,7 @@ function App() {
                 />
               </>
             ) : (
+              /* Fallback for unauthenticated trying to access protected routes */
               <Route path="*" element={<Navigate to="/login" />} />
             )}
           </Routes>
