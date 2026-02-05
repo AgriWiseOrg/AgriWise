@@ -1,3 +1,4 @@
+// AgriWise App - Support System Updated [v2]
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -9,7 +10,7 @@ import MyCrops from './components/MyCrops';
 import GovtSchemes from './components/GovtSchemes';
 import MarketPlace from './components/MarketPlace';
 import Weather from './components/Weather';
-import Suppport from './components/Suppport';
+import Support from './components/Support';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
 import { CartProvider } from './components/CartContext';
@@ -73,7 +74,7 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/weather" element={<Weather />} />
-                <Route path="/support" element={<Suppport />} />
+                <Route path="/support" element={<Support />} />
 
                 {/* Govt Schemes Sub-Routes with Role Based Access */}
                 <Route
