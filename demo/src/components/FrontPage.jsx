@@ -1,19 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, Sprout, Landmark, ShoppingBag, 
   CloudSun, LifeBuoy, Search, LogOut, ShoppingCart, 
-  ChevronRight, MapPin, Droplets // Changed Wind to Droplets
+  ChevronRight, MapPin, Droplets, RefreshCw
 } from 'lucide-react';
 import { useCart } from './CartContext';
 
 const FrontPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const { totalItems } = useCart();
-  const [weatherData, setWeatherData] = useState({ temp: '24', humidity: '62%' }); // Updated state
+  
+  // State for live weather data
+  const [weatherData, setWeatherData] = useState({ temp: '--', humidity: '--' });
+  const [loadingWeather, setLoadingWeather] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  /**
+   * Fetch Live Weather using Open-Meteo (Free, No Key Required)
+   */
+  const fetchLiveWeather = useCallback(async (lat, lon) => {
+    setLoadingWeather(true);
+    try {
+      // Open-Meteo API: High accuracy, open-source, and free for non-commercial use
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`
+      );
+      const data = await response.json();
+      
+      setWeatherData({
+        temp: Math.round(data.current.temperature_2m),
+        humidity: data.current.relative_humidity_2m + '%'
+      });
+    } catch (error) {
+      console.error("Weather fetch failed:", error);
+      // Fallback data if API fails
+      setWeatherData({ temp: '24', humidity: '60%' });
+    } finally {
+      setLoadingWeather(false);
+    }
+  }, []);
+
+  // Initialize Geolocation on mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchLiveWeather(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          // Default to New Delhi coordinates if user denies location access
+          fetchLiveWeather(28.6139, 77.2090);
+        }
+      );
+    } else {
+      fetchLiveWeather(28.6139, 77.2090);
+    }
+  }, [fetchLiveWeather]);
+
+  // Navbar scroll effect
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -35,11 +81,13 @@ const FrontPage = ({ onLogout }) => {
   return (
     <div className="min-h-screen bg-[#FDFDFD] text-slate-900 font-sans selection:bg-emerald-100">
       
+      {/* --- Aesthetic Background Elements --- */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-emerald-50 blur-[120px]" />
         <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] rounded-full bg-blue-50 blur-[100px]" />
       </div>
 
+      {/* --- Sticky Navigation --- */}
       <nav className={`sticky top-0 z-[100] transition-all duration-300 px-6 py-4 ${
         isScrolled ? 'bg-white/70 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'bg-transparent'
       }`}>
@@ -48,7 +96,7 @@ const FrontPage = ({ onLogout }) => {
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
               <Sprout className="text-white w-6 h-6" />
             </div>
-            <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
+            <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-r from-slate-900 to-slate-600">
               AgriWise
             </span>
           </motion.div>
@@ -71,13 +119,14 @@ const FrontPage = ({ onLogout }) => {
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-32">
         
+        {/* --- Header & Live Weather Widgets --- */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
               {greeting}, <span className="text-emerald-600">Farmer</span>
             </h1>
             <p className="text-slate-500 mt-2 text-lg font-medium tracking-tight">
-              Let's optimize your harvest today.
+              Real-time insights for your fields.
             </p>
           </motion.div>
 
@@ -91,24 +140,28 @@ const FrontPage = ({ onLogout }) => {
               </div>
               <div>
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Temperature</p>
-                <p className="text-xl font-bold text-slate-800">{weatherData.temp}°C</p>
+                <p className="text-xl font-bold text-slate-800">
+                  {loadingWeather ? <RefreshCw className="w-4 h-4 animate-spin text-slate-300" /> : `${weatherData.temp}°C`}
+                </p>
               </div>
             </div>
             <div className="w-[1px] h-10 bg-slate-100" />
             
-            {/* --- Updated: Humidity Level --- */}
             <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
                 <Droplets className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Humidity</p>
-                <p className="text-xl font-bold text-blue-600">{weatherData.humidity}</p>
+                <p className="text-xl font-bold text-blue-600">
+                  {loadingWeather ? <RefreshCw className="w-4 h-4 animate-spin text-slate-300" /> : weatherData.humidity}
+                </p>
               </div>
             </div>
           </motion.div>
         </header>
 
+        {/* --- Search Bar --- */}
         <div className="relative mb-12 group">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
           <input 
@@ -118,7 +171,7 @@ const FrontPage = ({ onLogout }) => {
           />
         </div>
 
-        {/* --- Hero with New Status Ripple Animation --- */}
+        {/* --- Hero Section with Enhanced Ripple --- */}
         <motion.div 
           whileHover={{ y: -5 }}
           className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-10 md:p-16 text-white shadow-2xl shadow-emerald-900/20 mb-12"
@@ -126,7 +179,6 @@ const FrontPage = ({ onLogout }) => {
           <div className="relative z-10 max-w-2xl">
             <div className="flex items-center gap-3 mb-6">
               <div className="relative flex h-3 w-3">
-                {/* Modern Ripple Animation */}
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </div>
@@ -146,6 +198,7 @@ const FrontPage = ({ onLogout }) => {
           <Sprout className="absolute -right-10 -bottom-10 w-64 h-64 text-emerald-500/10 rotate-12" />
         </motion.div>
 
+        {/* --- Navigation Grid --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
             {menuItems.map((item, i) => (
@@ -179,6 +232,7 @@ const FrontPage = ({ onLogout }) => {
         </div>
       </main>
 
+      {/* --- Floating Bottom Command Center --- */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-lg">
         <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-3 flex justify-between items-center shadow-2xl">
           <NavButton icon={<TrendingUp size={20} />} label="Stats" active />
