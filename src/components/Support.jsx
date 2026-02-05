@@ -6,25 +6,10 @@ const Support = () => {
     const [lang, setLang] = useState('en');
     const [showDisputeForm, setShowDisputeForm] = useState(false);
     const [formStatus, setFormStatus] = useState('');
-    const [weather, setWeather] = useState(null);
-    const [loadingWeather, setLoadingWeather] = useState(true);
     const [subsidyStep, setSubsidyStep] = useState(0);
     const [subsidyData, setSubsidyData] = useState({ land: '', crop: '', state: '' });
 
-    useEffect(() => {
-        const fetchWeather = async () => {
-            try {
-                const res = await fetch('http://localhost:5001/api/support/weather');
-                const json = await res.json();
-                if (json.success) setWeather(json.data);
-            } catch (err) {
-                console.error("Failed to fetch weather", err);
-            } finally {
-                setLoadingWeather(false);
-            }
-        };
-        fetchWeather();
-    }, []);
+
 
     const translations = {
         en: {
@@ -43,12 +28,6 @@ const Support = () => {
             disputeDesc: 'Fairness for all. Report issues with buyers or payments.',
             back: 'Back to Home',
             selectLang: 'Select Language',
-            weatherTitle: 'Weather Advisory',
-            weatherDesc: 'Real-time regional alerts.',
-            temp: 'Temp',
-            humidity: 'Humidity',
-            wind: 'Wind',
-            adv: 'Advisory',
             subsidyTitle: 'Subsidy Finder',
             subsidyDesc: 'Check eligibility in 3 steps.',
             findNow: 'Find Now'
@@ -490,87 +469,28 @@ const Support = () => {
 
                 {/* Multimodal Action Bar */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <a href="tel:+919876543210" className="flex flex-col items-center justify-center p-6 bg-rose-600 text-white rounded-[2rem] shadow-xl shadow-rose-200 hover:scale-105 transition-transform group">
+                    <a href="tel:+916301230747" className="flex flex-col items-center justify-center p-6 bg-rose-600 text-white rounded-[2rem] shadow-xl shadow-rose-200 hover:scale-105 transition-transform group">
                         <span className="text-4xl mb-2 group-hover:rotate-12 transition-transform">📞</span>
                         <span className="font-black text-lg">{t.voiceCall}</span>
                         <span className="text-[10px] opacity-80 uppercase font-bold mt-1">Available 24/7</span>
                     </a>
-                    <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center p-6 bg-emerald-500 text-white rounded-[2rem] shadow-xl shadow-emerald-200 hover:scale-105 transition-transform group">
+                    <a href="https://wa.me/916301230747" target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center p-6 bg-emerald-500 text-white rounded-[2rem] shadow-xl shadow-emerald-200 hover:scale-105 transition-transform group">
                         <span className="text-4xl mb-2 group-hover:rotate-12 transition-transform">💬</span>
                         <span className="font-black text-lg">{t.whatsapp}</span>
                         <span className="text-[10px] opacity-80 uppercase font-bold mt-1">Fast Response</span>
                     </a>
-                    <button className="flex flex-col items-center justify-center p-6 bg-slate-800 text-white rounded-[2rem] shadow-xl shadow-slate-300 hover:scale-105 transition-transform group">
+                    <a href="sms:+916301230747" className="flex flex-col items-center justify-center p-6 bg-slate-800 text-white rounded-[2rem] shadow-xl shadow-slate-300 hover:scale-105 transition-transform group">
                         <span className="text-4xl mb-2 group-hover:rotate-12 transition-transform">📱</span>
                         <span className="font-black text-lg">{t.smsIvr}</span>
                         <span className="text-[10px] opacity-80 uppercase font-bold mt-1">Dial *123#</span>
-                    </button>
+                    </a>
                 </section>
 
                 <hr className="border-slate-200" />
 
                 {/* Unique AgriWise Tools */}
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Weather-Based Crop Advisory Widget */}
-                    <div className="bg-gradient-to-br from-sky-600 to-indigo-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-sky-100">
-                        <div className="relative z-10 flex flex-col h-full">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl">
-                                        {loadingWeather ? '⏳' : (weather?.icon || '🌤️')}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-black text-xl leading-tight">{t.weatherTitle}</h3>
-                                        <p className="text-sky-100 text-[10px] font-black uppercase tracking-widest">{t.weatherDesc}</p>
-                                    </div>
-                                </div>
-                                {!loadingWeather && weather && (
-                                    <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
-                                        Live Updates
-                                    </div>
-                                )}
-                            </div>
 
-                            {loadingWeather ? (
-                                <div className="space-y-3 animate-pulse">
-                                    <div className="h-4 bg-white/20 rounded w-3/4"></div>
-                                    <div className="h-4 bg-white/20 rounded w-1/2"></div>
-                                </div>
-                            ) : weather ? (
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <div className="bg-white/10 backdrop-blur-sm p-3 rounded-2xl text-center">
-                                            <p className="text-[10px] text-sky-200 font-black uppercase mb-1">{t.temp}</p>
-                                            <p className="text-lg font-black">{weather.temp}°C</p>
-                                        </div>
-                                        <div className="bg-white/10 backdrop-blur-sm p-3 rounded-2xl text-center">
-                                            <p className="text-[10px] text-sky-200 font-black uppercase mb-1">{t.humidity}</p>
-                                            <p className="text-lg font-black">{weather.humidity}%</p>
-                                        </div>
-                                        <div className="bg-white/10 backdrop-blur-sm p-3 rounded-2xl text-center">
-                                            <p className="text-[10px] text-sky-200 font-black uppercase mb-1">{t.wind}</p>
-                                            <p className="text-lg font-black">{weather.wind} <span className="text-[8px]">km/h</span></p>
-                                        </div>
-                                    </div>
-
-                                    <div className={`p-4 rounded-2xl border-2 ${weather.level === 'Critical' ? 'bg-red-500/20 border-red-400' : weather.level === 'Warning' ? 'bg-amber-500/20 border-amber-400' : 'bg-emerald-500/20 border-emerald-400'} backdrop-blur-md`}>
-                                        <p className="text-[10px] font-black uppercase mb-1 flex items-center gap-1">
-                                            <span>{weather.icon}</span> {t.adv}:
-                                        </p>
-                                        <p className="text-sm font-bold leading-snug">{weather.advisory}</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="text-sky-100 text-sm italic">Failed to load real-time data. Please try again.</p>
-                            )}
-
-                            <div className="mt-6 flex items-center gap-2">
-                                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
-                                <span className="text-[8px] font-black uppercase tracking-widest text-sky-200">Verified with Real Data</span>
-                            </div>
-                        </div>
-                        <div className="absolute -right-6 -bottom-6 text-9xl opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">📡</div>
-                    </div>
 
                     {/* Subsidy Eligibility Wizard */}
                     <div className="bg-white border-2 border-emerald-100 rounded-[2.5rem] p-8 flex flex-col shadow-xl shadow-emerald-50">
