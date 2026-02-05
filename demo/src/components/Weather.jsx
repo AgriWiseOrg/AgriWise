@@ -7,9 +7,9 @@ const Weather = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchWeather = async () => {
+    const fetchWeather = async (lat = 28.6139, lon = 77.2090) => {
       try {
-        const res = await fetch('http://localhost:5001/api/support/weather');
+        const res = await fetch(`http://localhost:5001/api/support/weather?lat=${lat}&lon=${lon}`);
         const json = await res.json();
         if (json.success) setData(json.data);
       } catch (err) {
@@ -18,7 +18,15 @@ const Weather = () => {
         setLoading(false);
       }
     };
-    fetchWeather();
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+        () => fetchWeather()
+      );
+    } else {
+      fetchWeather();
+    }
   }, []);
 
   const getWeatherLabel = (code) => {

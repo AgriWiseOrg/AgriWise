@@ -12,6 +12,7 @@ import GovtSchemes from './components/GovtSchemes';
 import MarketPlace from './components/MarketPlace';
 import Weather from './components/Weather';
 import Support from './components/Support';
+import BuyerSupport from './components/BuyerSupport';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
 import { CartProvider } from './components/CartContext';
@@ -82,7 +83,10 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/weather" element={<Weather />} />
-                <Route path="/support" element={<Support />} />
+                <Route
+                  path="/support"
+                  element={user.role === 'buyer' ? <BuyerSupport /> : <Support />}
+                />
 
                 {/* Govt Schemes Sub-Routes with Role Based Access */}
                 <Route
