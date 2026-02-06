@@ -360,30 +360,69 @@ const Weather = () => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
 
-    // Check if the text is a key in our translations, if not use it as is
-    // (Backend advisories are already translated and passed as strings)
     const utterance = new SpeechSynthesisUtterance(text);
-
-    const voices = window.speechSynthesis.getVoices();
     const langMap = {
       en: 'en-IN', hi: 'hi-IN', te: 'te-IN',
       ta: 'ta-IN', kn: 'kn-IN', mr: 'mr-IN',
       ml: 'ml-IN', bn: 'bn-IN'
     };
     const targetLang = langMap[lang] || 'en-IN';
+    utterance.lang = targetLang;
 
-    // Attempt to find a native voice for the specific Indian language
-    const voice = voices.find(v => v.lang.startsWith(targetLang)) ||
-      voices.find(v => v.lang.includes(targetLang.split('-')[0])) ||
-      voices.find(v => v.lang.startsWith('en'));
+    const findVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return null;
 
-    if (voice) utterance.voice = voice;
-    utterance.lang = targetLang; // Critical for correct engine selection
-    utterance.rate = 0.8; // Slower for better clarity
+      // 1. Try exact BCP 47 match (e.g. te-IN)
+      let voice = voices.find(v => v.lang === targetLang || v.lang.replace('_', '-') === targetLang);
+
+      // 2. Try prefix match (e.g. te)
+      if (!voice) {
+        voice = voices.find(v => v.lang.startsWith(targetLang.split('-')[0]));
+      }
+
+      // 3. Special Case: If it's a regional lang and no native voice found, 
+      // check for "Indian" variants but AVOID common English if possible
+      if (!voice && targetLang !== 'en-IN') {
+        voice = voices.find(v => v.lang.includes('IN') && (v.name.includes('Google') || v.name.includes('Natural')));
+      }
+
+      // 4. Fallback to English only as a very last resort
+      if (!voice) {
+        voice = voices.find(v => v.lang.startsWith('en'));
+      }
+
+      return voice;
+    };
+
+    const voice = findVoice();
+    if (voice) {
+      utterance.voice = voice;
+      console.log(`🔊 Speaking in ${lang} using voice:`, voice.name);
+    } else {
+      console.warn(`⚠️ No native voice found for ${lang}, falling back to default.`);
+    }
+
+    utterance.rate = 0.8;
     utterance.pitch = 1.0;
 
-    window.speechSynthesis.speak(utterance);
+    // Add a small delay if voices were just loaded
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance);
+    }, 100);
   };
+
+  // Pre-load voices for browsers that need a prompt
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        const voices = window.speechSynthesis.getVoices();
+        console.log("🌦️ Browser voices loaded:", voices.length);
+      };
+    }
+  }, []);
+
 
   // --- Dynamic Weather Assets ---
 
