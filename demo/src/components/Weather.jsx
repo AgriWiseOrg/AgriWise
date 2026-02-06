@@ -408,9 +408,9 @@ const Weather = () => {
 
   const [selectedCrop, setSelectedCrop] = useState('General');
 
-  const fetchWeather = async (lat = 28.6139, lon = 77.2090, crop = 'General') => {
+  const fetchWeather = async (lat = 28.6139, lon = 77.2090, crop = 'General', currentLang = 'en') => {
     try {
-      const res = await fetch(`http://localhost:5001/api/support/weather?lat=${lat}&lon=${lon}&crop=${crop}`);
+      const res = await fetch(`http://localhost:5001/api/support/weather?lat=${lat}&lon=${lon}&crop=${crop}&lang=${currentLang}`);
       const json = await res.json();
       if (json.success) setData(json.data);
     } catch (err) {
@@ -423,13 +423,13 @@ const Weather = () => {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, selectedCrop),
-        () => fetchWeather(28.6139, 77.2090, selectedCrop)
+        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, selectedCrop, lang),
+        () => fetchWeather(28.6139, 77.2090, selectedCrop, lang)
       );
     } else {
-      fetchWeather(28.6139, 77.2090, selectedCrop);
+      fetchWeather(28.6139, 77.2090, selectedCrop, lang);
     }
-  }, [selectedCrop]);
+  }, [selectedCrop, lang]);
 
   const getWeatherLabel = (code) => {
     if (code === 0) return { label: t.sky0, icon: '☀️' };
