@@ -219,26 +219,44 @@ const Weather = () => {
           </div>
         </section>
 
-        {/* Dynamic Static Insights */}
+        {/* Live Agricultural Insights */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden group">
             <div className="relative z-10 space-y-4">
-              <h3 className="text-2xl font-black">Soil Nutrition Alert</h3>
-              <p className="text-slate-400 font-medium">Following the {isRainy ? 'expected rain' : 'dry spell'}, soil nutrient leaching risk is <span className="text-emerald-400 font-bold">Low</span>. Ideal for fertilization.</p>
-              <div className="h-4 bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 w-[85%] rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]"></div>
+              <h3 className="text-2xl font-black italic text-emerald-400">Wind & Spray Guidance</h3>
+              <p className="text-slate-400 font-medium leading-relaxed">
+                Current wind speed is <span className="text-white font-bold">{data.wind} km/h</span>.
+                {data.wind < 15 ? ' Conditions are IDEAL for pesticide spraying.' : ' EXTREME WIND: Postpone spraying to prevent chemical drift.'}
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${Math.min(100, (data.wind / 30) * 100)}%` }}></div>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Turbulence Index</span>
               </div>
             </div>
-            <span className="absolute -right-6 -bottom-6 text-9xl opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-1000">🧪</span>
+            <span className="absolute -right-6 -bottom-6 text-9xl opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-1000">🌬️</span>
           </div>
 
           <div className="bg-white border-2 border-slate-100 rounded-[3rem] p-10 relative overflow-hidden group">
             <div className="relative z-10 space-y-4">
-              <h3 className="text-2xl font-black text-slate-800">Satellite Map Overlays</h3>
-              <p className="text-slate-500 font-medium leading-relaxed">View your field from space with NDVI and moisture indices. (Beta Access Required)</p>
-              <button className="bg-slate-900 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-widest">Join Beta Registry</button>
+              <h3 className="text-2xl font-black text-slate-800">Atmospheric Stress</h3>
+              <p className="text-slate-500 font-medium leading-relaxed">
+                Humidity is at <span className="text-slate-900 font-bold">{data.humidity}%</span>.
+                {data.humidity > 75 ? ' HIGH MOISTURE: Monitor for fungal growth and blight immediately.' : ' Stable atmospheric moisture levels detected.'}
+              </p>
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Evaporation</p>
+                  <p className="text-lg font-black text-slate-800">{data.temp > 30 ? 'High' : 'Normal'}</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Fungal Risk</p>
+                  <p className="text-lg font-black text-slate-800">{data.humidity > 70 ? 'High' : 'Low'}</p>
+                </div>
+              </div>
             </div>
-            <span className="absolute -right-6 -bottom-6 text-9xl opacity-5 rotate-12 group-hover:rotate-0 transition-transform duration-1000 grayscale">🛰️</span>
+            <span className="absolute -right-6 -bottom-6 text-9xl opacity-5 rotate-12 group-hover:rotate-0 transition-transform duration-1000 grayscale">🌡️</span>
           </div>
         </section>
       </main>
