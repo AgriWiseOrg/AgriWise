@@ -261,16 +261,12 @@ const Support = () => {
                 ]
             },
             {
-                title: t.govtTitle,
-                desc: t.govtDesc,
-                icon: '🏛️',
-                color: 'border-emerald-200',
-                details: 'Explore official portals like the National Government Services Portal. Key schemes: PM-Kisan (16th Installment out!), KCC (Kisan Credit Card at 4% interest), and PMFBY (Crop Insurance). Visit pmkisan.gov.in for direct benefit status.',
-                links: [
-                    { label: 'PM-Kisan Portal', url: 'https://pmkisan.gov.in/' },
-                    { label: 'KCC Info', url: 'https://www.myscheme.gov.in/schemes/kcc' },
-                    { label: 'PMFBY (Insurance)', url: 'https://pmfby.gov.in/' }
-                ]
+                title: t.disputeTitle,
+                desc: t.disputeDesc,
+                icon: '⚖️',
+                color: 'border-rose-200',
+                details: 'Report any unfair pricing or payment delays. Our resolution team will investigate with the buyer and protect your interests.',
+                links: []
             },
         ],
         hi: [
@@ -286,16 +282,12 @@ const Support = () => {
                 ]
             },
             {
-                title: t.govtTitle,
-                desc: t.govtDesc,
-                icon: '🏛️',
-                color: 'border-emerald-200',
-                details: 'प्रधानमंत्री किसान (प्रत्यक्ष आय सहायता), केसीसी (4% ब्याज पर किसान क्रेडिट कार्ड), और पीएमएफबीवाई (फसल बीमा) जैसी आधिकारिक सरकारी योजनाओं की जानकारी प्राप्त करें। अपनी स्थिति जानने के लिए pmkisan.gov.in पर जाएं।',
-                links: [
-                    { label: 'पीएम-किसान पोर्टल', url: 'https://pmkisan.gov.in/' },
-                    { label: 'केसीसी जानकारी', url: 'https://www.myscheme.gov.in/schemes/kcc' },
-                    { label: 'पीएमएफबीवाई (बीमा)', url: 'https://pmfby.gov.in/' }
-                ]
+                title: t.disputeTitle,
+                desc: t.disputeDesc,
+                icon: '⚖️',
+                color: 'border-rose-200',
+                details: 'किसी भी अनुचित मूल्य निर्धारण या भुगतान में देरी की रिपोर्ट करें। हमारी समाधान टीम खरीदार के साथ जांच करेगी और आपके हितों की रक्षा करेगी।',
+                links: []
             },
         ],
         te: [
@@ -311,16 +303,12 @@ const Support = () => {
                 ]
             },
             {
-                title: t.govtTitle,
-                desc: t.govtDesc,
-                icon: '🏛️',
-                color: 'border-emerald-200',
-                details: 'ప్రభుత్వ అధికారిక పోర్టల్‌లలో పీఎం-కిసాన్ (ప్రత్యక్ష ఆదాయ మద్దతు), కేసీసీ (4% వడ్డీకి కిసాన్ క్రెడిట్ కార్డ్), మరియు పీఎంఎఫ్బీవై (పంట బీమా) వంటి పథకాలను అన్వేషించండి. వివరాల కోసం pmkisan.gov.inని సందర్శించండి.',
-                links: [
-                    { label: 'పీఎం-కిసాన్ పోర్టల్', url: 'https://pmkisan.gov.in/' },
-                    { label: 'కేసీసీ సమాచారం', url: 'https://www.myscheme.gov.in/schemes/kcc' },
-                    { label: 'పీఎంఎఫ్బీవై (భీమా)', url: 'https://pmfby.gov.in/' }
-                ]
+                title: t.disputeTitle,
+                desc: t.disputeDesc,
+                icon: '⚖️',
+                color: 'border-rose-200',
+                details: 'ఏవైనా అన్యాయమైన ధరలు లేదా చెల్లింపు ఆలస్యాలను నివేదించండి. మా పరిష్కార బృందం కొనుగోలుదారుతో విచారణ చేస్తుంది మరియు మీ ప్రయోజనాలను కాపాడుతుంది.',
+                links: []
             },
         ],
         ta: [
@@ -336,16 +324,12 @@ const Support = () => {
                 ]
             },
             {
-                title: t.govtTitle,
-                desc: t.govtDesc,
-                icon: '🏛️',
-                color: 'border-emerald-200',
-                details: 'பிஎம்-கிசான் (நேரடி வருமான ஆதரவு), கேசிசி (4% வட்டியில் கிசான் கடன் அட்டை) மற்றும் பிஎம்எப்விஒய் (பயிர் காப்பீடு) போன்ற அதிகாரப்பூர்வ இணையதளங்களை ஆராயுங்கள். விவரங்களுக்கு pmkisan.gov.in ஐப் பார்வையிடவும்.',
-                links: [
-                    { label: 'பிஎம்-கிசான் போர்டல்', url: 'https://pmkisan.gov.in/' },
-                    { label: 'கேசிசி தகவல்', url: 'https://www.myscheme.gov.in/schemes/kcc' },
-                    { label: 'பிஎம்எப்விஒய் (காப்பீடு)', url: 'https://pmfby.gov.in/' }
-                ]
+                title: t.disputeTitle,
+                desc: t.disputeDesc,
+                icon: '⚖️',
+                color: 'border-rose-200',
+                details: 'நியாயமற்ற விலை நிர்ணயம் அல்லது பணம் செலுத்துவதில் தாமதம் ஏற்பட்டால் புகாரளிக்கவும். எங்கள் தீர்வுக் குழு வாங்குபவரிடம் விசாரித்து உங்கள் நலன்களைப் பாதுகாக்கும்.',
+                links: []
             },
         ],
         ml: [
@@ -361,16 +345,12 @@ const Support = () => {
                 ]
             },
             {
-                title: t.govtTitle,
-                desc: t.govtDesc,
-                icon: '🏛️',
-                color: 'border-emerald-200',
-                details: 'പിഎം-കിസാൻ (നേരിട്ടുള്ള വരുമാന പിന്തുണ), കെസിസി (4% പലിശയിൽ കിസാൻ ക്രെഡിറ്റ് കാർഡ്), പിഎംഎഫ്ബിവൈ (വിള ഇൻഷുറൻസ്) തുടങ്ങിയ ഔദ്യോഗിക പോർട്ടലുകൾ പരിശോധിക്കുക. വിവരങ്ങൾക് pmkisan.gov.in സന്ദർശിക്കുക.',
-                links: [
-                    { label: 'പിഎം-കിസാൻ പോർട്ടൽ', url: 'https://pmkisan.gov.in/' },
-                    { label: 'കെസിസി വിവരങ്ങൾ', url: 'https://www.myscheme.gov.in/schemes/kcc' },
-                    { label: 'പിഎംഎഫ്ബിവൈ (ഇൻഷുറൻസ്)', url: 'https://pmfby.gov.in/' }
-                ]
+                title: t.disputeTitle,
+                desc: t.disputeDesc,
+                icon: '⚖️',
+                color: 'border-rose-200',
+                details: 'അന്യായമായ വിലനിർണ്ണയമോ പേയ്‌മെന്റ് കാലതാമസമോ ഉണ്ടെങ്കിൽ റിപ്പോർട്ട് ചെയ്യുക. ഞങ്ങളുടെ പരിഹാര ടീം വാങ്ങുന്നയാളുമായി അന്വേഷിക്കുകയും നിങ്ങളുടെ താൽപ്പര്യങ്ങൾ സംരക്ഷിക്കുകയും ചെയ്യും.',
+                links: []
             },
         ],
         kn: [
@@ -386,16 +366,12 @@ const Support = () => {
                 ]
             },
             {
-                title: t.govtTitle,
-                desc: t.govtDesc,
-                icon: '🏛️',
-                color: 'border-emerald-200',
-                details: 'ಪಿಎಂ-ಕಿಸಾನ್ (ನೇರ ಆದಾಯ ಬೆಂಬಲ), ಕೆಸಿಸಿ (4% ಬಡ್ಡಿಯಲ್ಲಿ ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್) ಮತ್ತು ಪಿಎಂಎಫ್‌ಬಿವೈ (ಬೆಳೆ ವಿಮೆ) ನಂತಹ ಅಧಿಕೃತ ಪೋರ್ಟಲ್‌ಗಳನ್ನು ಅನ್ವೇಷಿಸಿ. ವಿವರಗಳಿಗಾಗಿ pmkisan.gov.in ಗೆ ಭೇಟಿ ನೀಡಿ.',
-                links: [
-                    { label: 'ಪಿಎಂ-ಕಿಸಾನ್ ಪೋರ್ಟಲ್', url: 'https://pmkisan.gov.in/' },
-                    { label: 'ಕೆಸಿಸಿ ಮಾಹಿತಿ', url: 'https://www.myscheme.gov.in/schemes/kcc' },
-                    { label: 'ಪಿಎಂಎಫ್‌ಬಿವೈ (ವಿಮೆ)', url: 'https://pmfby.gov.in/' }
-                ]
+                title: t.disputeTitle,
+                desc: t.disputeDesc,
+                icon: '⚖️',
+                color: 'border-rose-200',
+                details: 'ಯಾವುದೇ ಅನ್ಯಾಯದ ಬೆಲೆ ಅಥವಾ ಪಾವತಿ ವಿಳಂಬವನ್ನು ವರದಿ ಮಾಡಿ. ನಮ್ಮ ಪರಿಹಾರ ತಂಡವು ಖರೀದಿದಾರರೊಂದಿಗೆ ವಿಚಾರಿಸುತ್ತದೆ ಮತ್ತು ನಿಮ್ಮ ಹಿತಾಸಕ್ತಿಗಳನ್ನು ರಕ್ಷಿಸುತ್ತದೆ.',
+                links: []
             },
         ],
         pa: [
@@ -483,6 +459,17 @@ const Support = () => {
 
             {/* Feature Cards Grid */}
             <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Market Insight Module Card */}
+                <div onClick={() => setActiveView('market')} className="bg-gradient-to-br from-orange-50 to-white border-2 border-orange-100 rounded-[3rem] p-10 cursor-pointer hover:shadow-2xl hover:border-orange-300 transition-all group relative overflow-hidden">
+                    <div className="relative z-10">
+                        <span className="text-6xl block mb-6 group-hover:scale-110 transition-transform">📈</span>
+                        <h3 className="text-2xl font-black text-slate-800 mb-2">Market & Pricing Insights</h3>
+                        <p className="text-slate-500 font-bold mb-6">Stay ahead with official Mandi rates and strategic selling advice.</p>
+                        <span className="inline-block bg-orange-600 text-white font-black px-6 py-3 rounded-xl text-sm">Explore Portal →</span>
+                    </div>
+                    <div className="absolute -right-10 -bottom-10 text-[12rem] opacity-5 group-hover:opacity-10 transition-opacity">💹</div>
+                </div>
+
                 {/* Crop Health Interactive Card */}
                 <div onClick={() => setActiveView('diagnostic')} className="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-100 rounded-[3rem] p-10 cursor-pointer hover:shadow-2xl hover:border-emerald-300 transition-all group relative overflow-hidden">
                     <div className="relative z-10">
@@ -635,6 +622,52 @@ const Support = () => {
         </div>
     );
 
+    const MarketView = () => (
+        <div className="animate-in slide-in-from-bottom duration-500 space-y-8">
+            <button onClick={() => setActiveView('main')} className="text-orange-600 font-black flex items-center gap-2 mb-4 bg-orange-50 px-6 py-3 rounded-2xl hover:bg-orange-100 transition-all">
+                ← Back to Dashboard
+            </button>
+
+            <div className="bg-white rounded-[3.5rem] p-10 md:p-14 shadow-2xl border-2 border-orange-50 relative overflow-hidden">
+                <div className="max-w-3xl relative z-10">
+                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">Market <span className="text-orange-600">Intelligence Portal</span></h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div className="space-y-4">
+                            <h3 className="text-xl font-black text-slate-800">Official Pricing Links</h3>
+                            <p className="text-slate-500 font-bold text-sm">Access official government dashboards for real-time Mandi arrivals and pricing across India.</p>
+                            <div className="flex flex-col gap-3">
+                                {[
+                                    { label: 'Agmarknet (Govt of India)', url: 'https://agmarknet.gov.in/', icon: '🇮🇳' },
+                                    { label: 'e-NAM (Digital Market)', url: 'https://www.enam.gov.in/', icon: '🖥️' },
+                                    { label: 'NHB (Horticulture Board)', url: 'https://nhb.gov.in/OnlineStats/ArrivalAndPriceReports.aspx', icon: '🍎' }
+                                ].map((l, i) => (
+                                    <a key={i} href={l.url} target="_blank" rel="noreferrer" className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-orange-200 transition-all group">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">{l.icon}</span>
+                                            <span className="font-black text-slate-700">{l.label}</span>
+                                        </div>
+                                        <span className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-orange-600 group-hover:text-white transition-all">↗</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-orange-50 rounded-[2.5rem] p-8 border-2 border-orange-100 flex flex-col justify-center">
+                            <div className="text-4xl mb-4">💡</div>
+                            <h3 className="text-xl font-black text-orange-900 mb-3">Pricing Strategy</h3>
+                            <p className="text-orange-800 font-bold text-sm leading-relaxed">
+                                Never sell in haste. Check the 3-month trend on our **Market Prices** dashboard. If its a surplus season, consider dry storage to sell when supply drops.
+                            </p>
+                            <button onClick={() => navigate('/market-prices')} className="mt-6 bg-orange-600 text-white font-black py-4 rounded-xl shadow-lg shadow-orange-200 hover:scale-105 transition-transform">View Market Trends</button>
+                        </div>
+                    </div>
+                </div>
+                <div className="absolute right-[-20px] top-[-20px] text-[20rem] opacity-5 font-black grayscale pointer-events-none">📈</div>
+            </div>
+        </div>
+    );
+
     const SchemePortalView = () => (
         <div className="animate-in slide-in-from-bottom duration-500 space-y-8">
             <button onClick={() => setActiveView('main')} className="text-blue-600 font-black flex items-center gap-2 mb-4 bg-blue-50 px-6 py-3 rounded-2xl hover:bg-blue-100 transition-all">
@@ -709,6 +742,7 @@ const Support = () => {
                 {activeView === 'main' && <MainView />}
                 {activeView === 'diagnostic' && <DiagnosticView />}
                 {activeView === 'schemes' && <SchemePortalView />}
+                {activeView === 'market' && <MarketView />}
 
                 {/* Dispute Form (Shared) */}
                 {showDisputeForm && (
