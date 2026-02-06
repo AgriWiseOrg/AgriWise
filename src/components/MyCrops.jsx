@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Plus, Edit3, Trash2, ChevronLeft,
-  LayoutGrid, Package, Sprout,
-  TrendingUp, X, Loader2, Calculator
+import { 
+  Plus, Edit3, Trash2, ChevronLeft, 
+  LayoutGrid, Package, Sprout, 
+  TrendingUp, X, Loader2 
 } from 'lucide-react';
-import QualityPriceCalculator from './QualityPriceCalculator';
 
 const MyCrops = ({ user }) => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [showCalculator, setShowCalculator] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    description: '',
-    quantity: '',
-    id: null
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    price: '', 
+    description: '', 
+    quantity: '', 
+    id: null 
   });
 
   // 1. Fetch only products belonging to this logged-in farmer
-  useEffect(() => {
+  useEffect(() => { 
     if (user?.id || user?._id) {
-      fetchProducts();
+        fetchProducts(); 
     }
   }, [user]);
 
@@ -37,10 +35,10 @@ const MyCrops = ({ user }) => {
       const res = await fetch(`http://localhost:5001/api/products/farmer/${userId}`);
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    } finally {
-      setLoading(false);
+    } catch (err) { 
+      console.error("Fetch error:", err); 
+    } finally { 
+      setLoading(false); 
     }
   };
 
@@ -51,7 +49,7 @@ const MyCrops = ({ user }) => {
 
     const userId = user?._id || user?.id;
     const isEdit = !!formData.id;
-
+    
     // Constructing payload to match Mongoose Schema exactly
     const payload = {
       name: formData.name,
@@ -60,15 +58,15 @@ const MyCrops = ({ user }) => {
       quantity: Number(formData.quantity),
       description: formData.description || "Fresh harvest from local fields.",
       farmerId: userId,
-      farmerName: user?.email ? user.email.split('@')[0] : "Verified Farmer",
+      farmerName: user?.email ? user.email.split('@')[0] : "Verified Farmer", 
       location: user?.location || "Kerala, India"
     };
 
     try {
-      const url = isEdit
-        ? `http://localhost:5001/api/products/${formData.id}`
+      const url = isEdit 
+        ? `http://localhost:5001/api/products/${formData.id}` 
         : 'http://localhost:5001/api/products';
-
+        
       const response = await fetch(url, {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,17 +81,17 @@ const MyCrops = ({ user }) => {
       } else {
         alert(`Error: ${result.message || 'Failed to save product'}`);
       }
-    } catch (err) {
-      alert('Error connecting to server. Please check if backend is running.');
-    } finally {
-      setLoading(false);
+    } catch (err) { 
+      alert('Error connecting to server. Please check if backend is running.'); 
+    } finally { 
+      setLoading(false); 
     }
   };
 
   // 3. Handle Delete
   const handleDelete = async (productId) => {
     if (!window.confirm("Are you sure you want to remove this crop?")) return;
-
+    
     setLoading(true);
     try {
       const res = await fetch(`http://localhost:5001/api/products/${productId}`, {
@@ -126,7 +124,7 @@ const MyCrops = ({ user }) => {
           </div>
           <span className="font-black text-xl tracking-tight hidden lg:block text-slate-800">AgriPro</span>
         </div>
-
+        
         <nav className="space-y-2">
           <button className="w-full flex items-center gap-4 p-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold transition-all">
             <LayoutGrid size={20} /> <span className="hidden lg:block">Inventory</span>
@@ -142,10 +140,10 @@ const MyCrops = ({ user }) => {
           <div>
             <h1 className="text-3xl font-black text-slate-900">Crop Inventory</h1>
             <p className="text-slate-500 font-medium tracking-tight">
-              Manage your marketplace listings for <span className="text-emerald-600">{user?.email || 'Farmer'}</span>
+                Manage your marketplace listings for <span className="text-emerald-600">{user?.email || 'Farmer'}</span>
             </p>
           </div>
-          <button
+          <button 
             onClick={() => setShowForm(true)}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-100 active:scale-95"
           >
@@ -170,7 +168,7 @@ const MyCrops = ({ user }) => {
           {products.map(product => (
             <div key={product._id} className="group bg-white p-6 rounded-[2.5rem] border border-slate-100 flex flex-col sm:flex-row items-center gap-6 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-
+              
               <div className="w-32 h-32 bg-slate-50 rounded-[2rem] flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
                 {product.name.toLowerCase().includes('rice') ? '🌾' : product.name.toLowerCase().includes('wheat') ? '🥖' : '🥦'}
               </div>
@@ -184,32 +182,32 @@ const MyCrops = ({ user }) => {
                 </div>
                 <p className="text-slate-400 text-sm mb-4 line-clamp-1">{product.description || "Fresh harvest listing."}</p>
                 <div className="flex items-center justify-center sm:justify-start gap-3">
-                  <button
+                  <button 
                     onClick={() => {
-                      setFormData({
-                        name: product.name,
-                        price: product.price,
-                        description: product.description,
-                        quantity: product.quantity,
-                        id: product._id
-                      });
-                      setShowForm(true);
-                    }}
+                        setFormData({ 
+                            name: product.name, 
+                            price: product.price, 
+                            description: product.description, 
+                            quantity: product.quantity, 
+                            id: product._id 
+                        });
+                        setShowForm(true);
+                    }} 
                     className="p-3 bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 rounded-xl transition-all"
                   >
-                    <Edit3 size={18} />
+                    <Edit3 size={18}/>
                   </button>
-                  <button
+                  <button 
                     onClick={() => handleDelete(product._id)}
                     className="p-3 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-xl transition-all"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={18}/>
                   </button>
                 </div>
               </div>
             </div>
           ))}
-
+          
           {!loading && products.length === 0 && (
             <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200">
               <p className="text-slate-400 font-medium">No crops listed yet. Start by adding your harvest!</p>
@@ -232,45 +230,25 @@ const MyCrops = ({ user }) => {
             <button onClick={resetForm} className="self-end p-2 hover:bg-slate-100 rounded-full mb-8"><X /></button>
             <h2 className="text-3xl font-black mb-2">{formData.id ? 'Edit Crop' : 'New Listing'}</h2>
             <p className="text-slate-500 mb-10">Fill in the harvest details below.</p>
-
+            
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Crop Name</label>
-                <input required placeholder="e.g. Basmati Rice" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                <input required placeholder="e.g. Basmati Rice" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               </div>
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-black uppercase text-slate-400 block">Price (per Quintal)</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowCalculator(true)}
-                    className="text-[10px] font-bold text-emerald-600 flex items-center gap-1 hover:underline"
-                  >
-                    <Calculator size={12} /> Suggest Price
-                  </button>
-                </div>
-                <input type="number" required placeholder="₹" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} />
+                <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Price (per Quintal)</label>
+                <input type="number" required placeholder="₹" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
               </div>
               <div>
                 <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Available Quantity (qtl)</label>
-                <input type="number" required placeholder="Quantity in quintals" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: e.target.value })} />
+                <input type="number" required placeholder="Quantity in quintals" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
               </div>
               <div>
                 <label className="text-xs font-black uppercase text-slate-400 mb-2 block">Description</label>
-                <textarea rows="3" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all resize-none" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
-                {/* Quality Price Calculator Modal */}
-                {showCalculator && (
-                  <QualityPriceCalculator
-                    cropName={formData.name}
-                    onClose={() => setShowCalculator(false)}
-                    onApplyPrice={(price) => {
-                      setFormData({ ...formData, price: price });
-                      setShowCalculator(false);
-                    }}
-                  />
-                )}
+                <textarea rows="3" className="w-full bg-slate-50 border-2 border-slate-50 p-4 rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
               </div>
-              <button
+              <button 
                 disabled={loading}
                 className="w-full py-5 bg-emerald-600 text-white font-black rounded-2xl shadow-lg hover:bg-emerald-700 transition-all mt-4 disabled:opacity-50"
               >
