@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -10,11 +10,76 @@ import {
     CheckCircle2,
     Users,
     Leaf,
-    Calculator
+    Calculator,
+    ChevronDown,
+    Globe,
+    Upload,
+    Wheat
 } from 'lucide-react';
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const [language, setLanguage] = useState('English');
+    const [langOpen, setLangOpen] = useState(false);
+
+
+    const languages = [
+        'English',
+        'हिंदी (Hindi)',
+        'मराठी (Marathi)',
+        'ગુજરાતી (Gujarati)',
+        'ਪੰਜਾਬੀ (Punjabi)',
+        'தமிழ் (Tamil)',
+        'తెలుగు (Telugu)',
+        'ಕನ್ನಡ (Kannada)',
+        'বাংলা (Bengali)'
+    ];
+
+    const content = {
+        'English': {
+            heroTag: "Revolutionizing Agriculture",
+            heroTitle1: "Farming meets",
+            heroTitle2: "Future Intelligence.",
+            heroDesc: "Empowering farmers with AI-driven insights, real-time market data, and direct access to government schemes.",
+            ctaBadge: "Free for Farmers",
+            ctaTitle: "List your crop in seconds.",
+            ctaSubtitle: "Sell for the best price.",
+            ctaButton: "Sell My Crop"
+        },
+        'हिंदी (Hindi)': {
+            heroTag: "कृषि में नई क्रांति",
+            heroTitle1: "खेती और",
+            heroTitle2: "भविष्य की तकनीक।",
+            heroDesc: "किसानों को एआई-आधारित जानकारी, रीयल-टाइम मंडी भाव और सरकारी योजनाओं तक सीधी पहुंच के साथ सशक्त बनाना।",
+            ctaBadge: "किसानों के लिए मुफ्त",
+            ctaTitle: "अपनी फसल सेकंडों में लिस्ट करें।",
+            ctaSubtitle: "सर्वोत्तम मूल्य पर बेचें।",
+            ctaButton: "मेरी फसल बेचें"
+        },
+        'मराठी (Marathi)': {
+            heroTag: "शेती क्षेत्रात क्रांती",
+            heroTitle1: "शेती आणि",
+            heroTitle2: "भविष्यातील तंत्रज्ञान.",
+            heroDesc: "शेतकऱ्यांना एआय-आधारित माहिती, रिअल-टाइम बाजार भाव आणि सरकारी योजनांच्या थेट प्रवेशासह सक्षम करणे.",
+            ctaBadge: "शेतकऱ्यांसाठी मोफत",
+            ctaTitle: "आपले पीक सेकंदात लिस्ट करा.",
+            ctaSubtitle: "सर्वोत्तम भावात विका.",
+            ctaButton: "माझे पीक विका"
+        },
+        // Fallback for others to English for demo purposes
+        'default': {
+            heroTag: "Revolutionizing Agriculture",
+            heroTitle1: "Farming meets",
+            heroTitle2: "Future Intelligence.",
+            heroDesc: "Empowering farmers with AI-driven insights, real-time market data, and direct access to government schemes.",
+            ctaBadge: "Free for Farmers",
+            ctaTitle: "List your crop in seconds.",
+            ctaSubtitle: "Sell for the best price.",
+            ctaButton: "Sell My Crop"
+        }
+    };
+
+    const t = content[language] || content['default'];
 
     const features = [
         {
@@ -56,14 +121,39 @@ const LandingPage = () => {
                         <span className="text-xl font-bold text-slate-900 tracking-tight">AgriWise</span>
                     </div>
                     <div className="flex items-center gap-4">
+                        {/* Language Selector */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setLangOpen(!langOpen)}
+                                className="flex items-center gap-2 px-3 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                <Globe className="w-4 h-4" />
+                                <span>{language.split(' ')[0]}</span>
+                                <ChevronDown className={`w-4 h-4 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {langOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-1 max-h-64 overflow-y-auto">
+                                    {languages.map((lang) => (
+                                        <button
+                                            key={lang}
+                                            onClick={() => { setLanguage(lang); setLangOpen(false); }}
+                                            className="w-full text-left px-4 py-2 hover:bg-emerald-50 text-slate-600 text-sm font-medium hover:text-emerald-600"
+                                        >
+                                            {lang}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <button
                             onClick={() => navigate('/login')}
-                            className="px-5 py-2.5 text-slate-600 font-medium hover:text-emerald-600 transition-colors"
+                            className="px-5 py-2.5 text-slate-600 font-medium hover:text-emerald-600 transition-colors hidden sm:block"
                         >
                             Log In
                         </button>
                         <button
-                            onClick={() => navigate('/login')} // Assuming registration handles same flow or separate
+                            onClick={() => navigate('/login')}
                             className="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5"
                         >
                             Get Started
@@ -97,7 +187,7 @@ const LandingPage = () => {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                 </span>
-                                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Revolutionizing Agriculture</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">{t.heroTag}</span>
                             </motion.div>
 
                             <motion.h1
@@ -106,8 +196,8 @@ const LandingPage = () => {
                                 transition={{ duration: 0.5, delay: 0.1 }}
                                 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight"
                             >
-                                Farming meets <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Future Intelligence.</span>
+                                {t.heroTitle1} <br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">{t.heroTitle2}</span>
                             </motion.h1>
 
                             <motion.p
@@ -116,20 +206,42 @@ const LandingPage = () => {
                                 transition={{ duration: 0.5, delay: 0.2 }}
                                 className="text-lg text-slate-600 leading-relaxed max-w-xl"
                             >
-                                Empowering farmers with AI-driven insights, real-time market data, and direct access to government schemes. The all-in-one platform for modern agriculture.
+                                {t.heroDesc}
                             </motion.p>
+
+                            {/* Social Proof */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.5, delay: 0.3 }}
+                                className="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-slate-200 w-fit px-4 py-2 rounded-xl"
+                            >
+                                <Users className="w-5 h-5 text-emerald-600" />
+                                <span className="text-sm font-semibold text-slate-700">
+                                    <span className="text-emerald-700 font-bold">1,200 Farmers</span> in your district joined this week.
+                                </span>
+                            </motion.div>
 
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.3 }}
-                                className="flex flex-col sm:flex-row gap-4"
+                                className="flex flex-col gap-4"
                             >
+                                <div className="space-y-3 mb-2">
+                                    <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-200">
+                                        {t.ctaBadge}
+                                    </span>
+                                    <p className="text-slate-900 font-black text-xl leading-tight">
+                                        {t.ctaTitle} <br />
+                                        <span className="text-emerald-600">{t.ctaSubtitle}</span>
+                                    </p>
+                                </div>
                                 <button
                                     onClick={() => navigate('/login')}
-                                    className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-200 flex items-center justify-center gap-2 group"
+                                    className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-200 flex items-center justify-center gap-2 group w-fit"
                                 >
-                                    Start Farming Smart
+                                    {t.ctaButton}
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </motion.div>
@@ -143,7 +255,6 @@ const LandingPage = () => {
                                 <div className="flex -space-x-4">
                                     {[1, 2, 3, 4].map((i) => (
                                         <div key={i} className="w-10 h-10 rounded-full bg-slate-200 border-4 border-white flex items-center justify-center text-xs font-bold text-slate-500">
-                                            {/* You would usually put images here */}
                                             U{i}
                                         </div>
                                     ))}
@@ -155,17 +266,16 @@ const LandingPage = () => {
                             </motion.div>
                         </div>
 
-                        {/* Hero Visual */}
-                        <div className="lg:w-1/2 relative">
-                            {/* Abstract decorative cards instead of generic image */}
+                        {/* Hero Visual - Dashboard Mockup */}
+                        <div className="lg:w-1/2 relative flex justify-center lg:justify-end">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.7 }}
-                                className="relative z-10"
+                                className="relative z-10 w-full max-w-md"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-[3rem] rotate-3 opacity-20 blur-xl"></div>
-                                <div className="relative bg-slate-900 rounded-[3rem] p-6 sm:p-10 shadow-2xl border border-slate-700/50 overflow-hidden">
+                                <div className="relative bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-2xl border border-slate-700/50 overflow-hidden">
                                     <div className="absolute top-0 right-0 p-12 opacity-50">
                                         <div className="w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl"></div>
                                     </div>
@@ -216,6 +326,41 @@ const LandingPage = () => {
                                     </div>
                                 </div>
                             </motion.div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Trust Signals Section */}
+            <div className="bg-white py-12 border-y border-slate-100">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row justify-center gap-8 md:gap-16">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-emerald-100 p-3 rounded-full">
+                                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-slate-900">Verified Buyers</p>
+                                <p className="text-xs text-slate-500">50 successful payments last week</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="bg-blue-100 p-3 rounded-full">
+                                <ShieldCheck className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-slate-900">Dispute Resolution</p>
+                                <p className="text-xs text-slate-500">24/7 dedicated helpline</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="bg-amber-100 p-3 rounded-full">
+                                <TrendingUp className="w-6 h-6 text-amber-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-slate-900">Best Price Guarantee</p>
+                                <p className="text-xs text-slate-500">AI-matched highest bids</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -274,10 +419,10 @@ const LandingPage = () => {
                         <span className="text-lg font-bold text-slate-900">AgriWise</span>
                     </div>
                     <div className="flex gap-8 text-slate-500 font-medium text-sm">
-                        <a href="#" className="hover:text-emerald-600 transition-colors">About</a>
-                        <a href="#" className="hover:text-emerald-600 transition-colors">Features</a>
-                        <a href="#" className="hover:text-emerald-600 transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-emerald-600 transition-colors">Contact</a>
+                        <button onClick={() => navigate('/about')} className="hover:text-emerald-600 transition-colors">About</button>
+                        <button onClick={() => navigate('/features')} className="hover:text-emerald-600 transition-colors">Features</button>
+                        <button onClick={() => navigate('/privacy')} className="hover:text-emerald-600 transition-colors">Privacy</button>
+                        <button onClick={() => navigate('/contact')} className="hover:text-emerald-600 transition-colors">Contact</button>
                     </div>
                     <p className="text-slate-400 text-sm">© 2024 AgriWise Inc.</p>
                 </div>

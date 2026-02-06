@@ -17,6 +17,12 @@ import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
 import { CartProvider } from './components/CartContext';
 
+// Public Static Pages
+import About from './components/About';
+import Features from './components/Features';
+import Privacy from './components/Privacy';
+import Contact from './components/Contact';
+
 // Epic 6: Govt Schemes Subpages - Split into Admin/Farmer
 import FarmingTipsAdmin from './components/GovtSchemes/FarmingTips_admin';
 import FarmingTipsFarmer from './components/GovtSchemes/FarmingTips_farmer';
@@ -72,6 +78,12 @@ function App() {
               path="/"
               element={user ? <FrontPage onLogout={handleLogout} /> : <LandingPage />}
             />
+
+            {/* Public Page Routes */}
+            <Route path="/about" element={<About />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/contact" element={<Contact />} />
 
             {user ? (
               <>
