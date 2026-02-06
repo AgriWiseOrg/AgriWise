@@ -247,15 +247,169 @@ const Support = () => {
     };
 
 
+    // --- Dynamic Weather Assets ---
+
+    const SatelliteRadar = () => (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] border-[1px] border-white/20 rounded-full animate-[spin_10s_linear_infinite]">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1/2 bg-gradient-to-t from-emerald-400 to-transparent origin-bottom"></div>
+            </div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.05)_100%)]"></div>
+        </div>
+    );
+
+    const Sunbeams = () => (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(6)].map((_, i) => (
+                <div key={i} className={`absolute top-[-10%] left-[${i * 20}%] w-32 h-[120%] bg-gradient-to-b from-white/20 to-transparent blur-3xl -rotate-12 animate-[pulse_4s_ease-in-out_infinite]`} style={{ animationDelay: `${i * 0.5}s` }}></div>
+            ))}
+        </div>
+    );
+
+    const Raindrops = () => (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
+            {[...Array(20)].map((_, i) => (
+                <div key={i} className="absolute w-[1px] h-10 bg-white/40 animate-[fall_1s_linear_infinite]" style={{ left: `${Math.random() * 100}%`, animationDuration: `${0.5 + Math.random()}s`, animationDelay: `${Math.random()}s` }}></div>
+            ))}
+            <style>{`
+                @keyframes fall {
+                    0% { transform: translateY(-100px); }
+                    100% { transform: translateY(500px); }
+                }
+            `}</style>
+        </div>
+    );
+
+    const WeatherIntelligence = () => {
+        const [weather, setWeather] = useState(null);
+        const [selectedCrop, setSelectedCrop] = useState('General');
+        const [loading, setLoading] = useState(true);
+
+        const fetchWeather = async (lat = 28.6139, lon = 77.2090, crop = 'General') => {
+            try {
+                const res = await fetch(`http://localhost:5001/api/support/weather?lat=${lat}&lon=${lon}&crop=${crop}`);
+                const json = await res.json();
+                if (json.success) setWeather(json.data);
+            } catch (err) {
+                console.error("Weather load fail", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        useEffect(() => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (p) => fetchWeather(p.coords.latitude, p.coords.longitude, selectedCrop),
+                    () => fetchWeather(28.6139, 77.2090, selectedCrop)
+                );
+            } else {
+                fetchWeather(28.6139, 77.2090, selectedCrop);
+            }
+        }, [selectedCrop]);
+
+        if (loading || !weather) return (
+            <div className="h-64 bg-slate-900 rounded-[3rem] animate-pulse flex items-center justify-center">
+                <p className="text-white font-black uppercase tracking-widest text-xs opacity-40">Syncing Satellite Intelligence...</p>
+            </div>
+        );
+
+        const isRainy = weather.code >= 51;
+        const isSunny = weather.code === 0;
+
+        return (
+            <section className={`relative overflow-hidden rounded-[3.5rem] p-8 md:p-12 text-white shadow-2xl transition-all duration-1000 ${isRainy ? 'bg-gradient-to-br from-slate-800 to-indigo-950' : isSunny ? 'bg-gradient-to-br from-amber-400 to-orange-600' : 'bg-gradient-to-br from-sky-500 to-indigo-600'}`}>
+                {/* Background Animations */}
+                <SatelliteRadar />
+                {isSunny && <Sunbeams />}
+                {isRainy && <Raindrops />}
+
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <span className="text-8xl drop-shadow-2xl">{weather.icon}</span>
+                            <div>
+                                <h2 className="text-7xl font-black tracking-tighter leading-none">{weather.temp}°</h2>
+                                <p className="font-black uppercase tracking-widest text-xs opacity-70 mt-2">Regional Micro-Climate</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2.5rem] p-8 space-y-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                                <div>
+                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] mb-3 text-white/60">Live Advisory</h3>
+                                    <p className="text-xl font-bold leading-relaxed">{weather.advisory}</p>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-white/10">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-3">Optimize Intelligence for your Crop:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {['General', 'Rice', 'Wheat', 'Tomato'].map(c => (
+                                        <button
+                                            key={c}
+                                            onClick={() => setSelectedCrop(c)}
+                                            className={`px-6 py-2 rounded-full text-xs font-black transition-all ${selectedCrop === c ? 'bg-white text-slate-900' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                                        >
+                                            {c}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-8">
+                        <div>
+                            <div className="flex justify-between items-end mb-4">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/60">24h Rainfall Probability</h3>
+                                <span className="text-[10px] font-black bg-white/10 px-2 py-1 rounded">Next 8h Forecast</span>
+                            </div>
+                            <div className="flex items-end gap-2 h-32 bg-white/5 rounded-[2rem] p-6 border border-white/5">
+                                {weather.rainProb.map((p, i) => (
+                                    <div key={i} className="flex-1 group relative">
+                                        <div
+                                            className="bg-emerald-400 rounded-t-lg transition-all duration-1000 hover:bg-white"
+                                            style={{ height: `${p}%` }}
+                                        ></div>
+                                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-black opacity-0 group-hover:opacity-100 transition-opacity">{p}%</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex justify-between mt-3 px-2">
+                                <span className="text-[8px] font-black uppercase opacity-40">Now</span>
+                                <span className="text-[8px] font-black uppercase opacity-40">+8 Hours</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Humidity</p>
+                                <p className="text-2xl font-black">{weather.humidity}%</p>
+                            </div>
+                            <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Wind Speed</p>
+                                <p className="text-2xl font-black">{weather.wind} <span className="text-xs opacity-40">km/h</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    };
+
     // --- Sub-Page Views ---
 
     const MainView = () => (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-12 animate-in fade-in duration-500">
             {/* Title Section */}
-            <section className="text-center space-y-2">
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight">{t.title} 📞</h1>
-                <p className="text-slate-500 font-medium text-lg">{t.subtitle}</p>
+            <section className="text-center space-y-2 mb-4">
+                <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight">Farmer <span className="text-emerald-600 italic">Command Center</span> 📡</h1>
+                <p className="text-slate-500 font-medium text-lg">Next-Level Intelligent Support for Indian Agriculture.</p>
             </section>
+
+            {/* Weather Command Center (Centerpiece) */}
+            <WeatherIntelligence />
 
             {/* Multimodal Action Bar */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
