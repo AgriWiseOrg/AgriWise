@@ -427,7 +427,7 @@ const BuyerSupport = () => {
                     <SubPageView title={t.logisticsTitle} fullText={t.logisticsFull} icon="🚚" colorClass="border-indigo-50" bgIcon="🛣️">
                         <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-[2.5rem] text-white shadow-xl shadow-indigo-100">
                             <h4 className="font-black uppercase tracking-widest text-xs mb-4 opacity-80">Live Tracking Feature</h4>
-                            <p className="font-bold text-lg leading-relaxed">Use the "Marketplace > Orders" tab to see real-time GPS status and temperature logs for your current shipments.</p>
+                            <p className="font-bold text-lg leading-relaxed">Use the "Marketplace &gt; Orders" tab to see real-time GPS status and temperature logs for your current shipments.</p>
                         </div>
                     </SubPageView>
                 )}
