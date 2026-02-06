@@ -27,8 +27,6 @@ app.use(express.json());
 // ================= API ROUTES =================
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/finance', financeRoutes);
-app.use('/api/support', supportRoutes);
-app.use('/api/products', productRoutes);
 app.use('/api/govt-schemes', require('./routes/govtSchemes'));
 app.use('/api/farming-tips', require('./routes/farmingTips'));
 app.use('/api/latest-updates', require('./routes/latestUpdates'));
@@ -103,31 +101,7 @@ app.post('/api/predict-price', async (req, res) => {
       const history = await MarketPrice.find({ crop: product }).sort({ date: 1 });
 
       if (history.length < 2) {
-        // [NEW] Fallback: Use CSV Data if valid
-        const csvItem = csvMarketData.find(c => c.crop.toLowerCase().includes(product.toLowerCase()));
-
-        if (csvItem) {
-          const basePrice = parseInt(csvItem.price.replace(/[^\d]/g, '')) || 2500;
-
-          // Heuristic Prediction based on month
-          // Assume simple seasonality: higher in summer (Apr-Jun), lower in winter? (Just detail)
-          const multiplier = 0.95 + Math.random() * 0.1; // +/- 5%
-
-          const predictedPrice = Math.round(basePrice * multiplier);
-
-          return res.json({
-            product,
-            predictedPrice,
-            currency: 'INR',
-            confidence: '75%',
-            factors: {
-              note: 'Prediction based on current CSV market rates.',
-              trend: multiplier > 1 ? 'Increasing' : 'Decreasing'
-            }
-          });
-        }
-
-        // Fallback if not enough data AND not in CSV
+        // Fallback if not enough data
         return res.json({
           product,
           predictedPrice: 0,
@@ -202,49 +176,58 @@ app.post('/api/predict-price', async (req, res) => {
   }
 });
 
-// 3. Demand Forecasts (Updated with Dynamic Crop Selection)
-app.get('/api/market/demand', async (req, res) => {
+// ================= MARKET DATA ENDPOINTS =================
+
+// 1. Current Market Prices (Live API)
+app.get('/api/market/prices', async (req, res) => {
+  try {
+    const RESOURCE_ID = '9ef84268-d588-465a-a308-a864a43d0070';
+    const API_KEY = '579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b';
+    const URL = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=100`;
+
+    const response = await axios.get(URL);
+    const records = response.data.records;
+
+    const prices = records.map((record, index) => ({
+      id: index + 1,
+      crop: `${record.commodity} (${record.variety})`,
+      mandi: `${record.market}, ${record.state}`,
+      price: `₹${record.modal_price}`,
+      trend: Math.random() > 0.5 ? 'up' : 'down'
+    }));
+
+    res.json(prices);
+  } catch (error) {
+    console.warn('⚠️ API failed, using fallbacks');
+    const fallbackPrices = [
+      { id: 1, crop: 'Wheat (Sarbati)', mandi: 'Indore Mandi', price: '₹2,350', trend: 'up' },
+      { id: 2, crop: 'Soybean (Yellow)', mandi: 'Ujjain Mandi', price: '₹4,800', trend: 'down' },
+      { id: 3, crop: 'Rice (Basmati)', mandi: 'Karnal Mandi', price: '₹6,000', trend: 'stable' }
+    ];
+    res.json(fallbackPrices);
+  }
+});
+
+// 2. Historical Data
+app.get('/api/market/history', async (req, res) => {
   const { crop } = req.query;
   try {
-    if (crop) {
-      // Generate a specific demand forecast for the requested crop
-      const demandLevel = ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)];
-      const percentage = Math.floor(Math.random() * 40) + (demandLevel === 'High' ? 60 : demandLevel === 'Medium' ? 30 : 5);
+    if (!crop) return res.status(400).json({ error: 'Crop parameter required' });
+    const historyData = await MarketPrice.find({ crop }).sort({ date: 1 }).limit(10);
+    const data = historyData.map(record => ({
+      month: new Date(record.date).toLocaleString('default', { month: 'short' }),
+      price: record.price
+    }));
+    res.json({ crop, period: '6m', data });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
 
-      const forecast = {
-        crop: crop,
-        currentDemand: Math.floor(Math.random() * 5000) + 1000,
-        projectedDemand: Math.floor(Math.random() * 6000) + 1500,
-        demandLevel: demandLevel,
-        percentage: percentage,
-        trend: Math.random() > 0.4 ? 'up' : 'down',
-        note: `Projected ${demandLevel.toLowerCase()} demand for ${crop} based on current market arrivals.`
-      };
-      return res.json([forecast]); // Return as array for compatibility
-    }
-
+// 3. Demand Forecasts
+app.get('/api/market/demand', async (req, res) => {
+  try {
     const demandData = await DemandForecast.find({});
-
-    if (demandData.length === 0 && csvMarketData.length > 0) {
-      // Simulate demand data based on CSV crops
-      const simulatedDemand = [];
-      const crops = [...new Set(csvMarketData.map(c => c.crop))].sort(() => 0.5 - Math.random()).slice(0, 10);
-
-      crops.forEach(crop => {
-        const demandLevel = ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)];
-        simulatedDemand.push({
-          crop: crop,
-          currentDemand: Math.floor(Math.random() * 5000) + 1000,
-          projectedDemand: Math.floor(Math.random() * 6000) + 1500,
-          demandLevel: demandLevel,
-          percentage: Math.floor(Math.random() * 40) + (demandLevel === 'High' ? 60 : demandLevel === 'Medium' ? 30 : 5),
-          trend: Math.random() > 0.4 ? 'up' : 'down',
-          note: 'Projected increase due to seasonal factors.'
-        });
-      });
-      return res.json(simulatedDemand);
-    }
-
     res.json(demandData);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch demand forecasts' });
@@ -252,21 +235,20 @@ app.get('/api/market/demand', async (req, res) => {
 });
 
 
-// 4. 30-Day Price Forecast (with Robust Fallback)
+// 4. 30-Day Price Forecast (Restored with Sine Wave Logic)
 app.get('/api/market/forecast-30-days', async (req, res) => {
   const { crop } = req.query;
   if (!crop) return res.status(400).json({ error: 'Crop parameter required' });
 
   try {
-    const now = new Date();
+    // 1. Check for existing trained model
     let model = await PredictionModel.findOne({ crop });
+    const now = new Date();
 
-    // 1. Attempt to Train from DB History
+    // 2. Train if missing or stale
     if (!model || (now - new Date(model.lastTrained) > 24 * 60 * 60 * 1000)) {
       const history = await MarketPrice.find({ crop }).sort({ date: 1 });
-
       if (history.length >= 2) {
-        // ... (Existing Training Logic) ...
         const n = history.length;
         let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
         history.forEach(record => {
@@ -292,57 +274,47 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
       }
     }
 
-    // 2. Generate Forecast
-    let slope = 0, intercept = 0;
-
-    // Use DB Model if available
-    if (model) {
-      slope = model.slope;
-      intercept = model.intercept;
-    } else {
-      // FALBACK: Generate Synthetic Model 
-      // [NEW] Check CSV for base price anchor
-      let basePrice = 2000;
-
-      const csvItem = csvMarketData.find(c => c.crop.toLowerCase().includes(crop.toLowerCase()));
-      if (csvItem) {
-        basePrice = parseInt(csvItem.price.replace(/[^\d]/g, '')) || 2500;
-      } else {
-        basePrice = 1500 + (crop.length * 100) + Math.random() * 2000;
-      }
-
-      slope = 0.00000005; // Slight Inflation
-      const time = new Date().getTime();
-      intercept = basePrice - (slope * time);
+    if (!model) {
+      return res.json({ crop, data: [], note: 'Insufficient data to forecast' });
     }
 
+    // 3. Generate 30-day forecast with Sine Wave + Randomness
     const forecastData = [];
     let currentDate = new Date();
     currentDate.setDate(currentDate.getDate() + 1);
 
-    // Simulation Parameters
-    const volatility = 0.02 + Math.random() * 0.03;
+    // Reduced volatility (smooth sine wave with gentle randomness)
+    const volatility = 0.02 + Math.random() * 0.03; // 2% to 5% range
     const waveFrequency = 0.1 + Math.random() * 0.2;
     const waveAmplitude = 100 + Math.random() * 200;
     const phaseShift = Math.random() * Math.PI * 2;
 
     for (let i = 0; i < 30; i++) {
       const time = currentDate.getTime();
-      const linearTrend = slope * time + intercept;
+      const linearTrend = model.slope * time + model.intercept;
+
+      // Cyclic seasonality (Sine wave)
       const seasonality = waveAmplitude * Math.sin((waveFrequency * i) + phaseShift);
+
+      // Reduced Random Noise (Multiplier 0.5)
       const noise = linearTrend * volatility * (Math.random() - 0.5) * 0.5;
 
+      // Combined price
       let priceRaw = linearTrend + seasonality + noise;
-      const predictedPrice = Math.max(500, Math.round(priceRaw * 100) / 100);
+
+      // Ensure positive price
+      const predictedPrice = Math.max(0, Math.round(priceRaw * 100) / 100);
 
       forecastData.push({
-        date: currentDate.toISOString().split('T')[0],
+        date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
         price: predictedPrice
       });
+
+      // Next day
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    res.json({ crop, data: forecastData, source: model ? 'Database Model' : 'AgriWise AI Simulation' });
+    res.json({ crop, data: forecastData });
 
   } catch (error) {
     console.error('Forecast Error:', error);
@@ -350,226 +322,15 @@ app.get('/api/market/forecast-30-days', async (req, res) => {
   }
 });
 
-// ================= MARKET DATA ENDPOINTS =================
+// Cart Routes
+app.use('/api/cart', cartRoutes);
 
-// ================= MARKET DATA PROVIDERS =================
+// Support Routes
+app.use('/api/support', supportRoutes);
 
-const cropData = {
-  'Wheat': { markets: ['Indore Mandi', 'Karnal Mandi', 'Pune Mandi'], price: [2100, 2600] },
-  'Rice': { markets: ['Karnal Mandi', 'Amritsar Mandi', 'Raipur Mandi'], price: [3000, 4500] },
-  'Tomato': { markets: ['Nashik Mandi', 'Kolar Mandi', 'Jaipur Mandi'], price: [1200, 2500] },
-  'Onion': { markets: ['Lasalgaon Mandi', 'Pune Mandi', 'Solapur Mandi'], price: [1500, 4000] },
-  'Potato': { markets: ['Agra Mandi', 'Farrukhabad Mandi', 'Indore Mandi'], price: [800, 1600] },
-  'Soybean': { markets: ['Ujjain Mandi', 'Latur Mandi', 'Kota Mandi'], price: [4500, 5200] },
-  'Cotton': { markets: ['Rajkot Mandi', 'Warangal Mandi', 'Akola Mandi'], price: [5500, 6500] }
-};
+// MarketPlace Products
+app.use('/api/products', productRoutes);
 
-const path = require('path');
-const parseCSV = require('./utils/csvParser');
-
-// Cache for CSV Data
-let csvMarketData = [];
-
-// Load CSV Data Initialy
-const loadCSVData = async () => {
-  try {
-    const dataPath = path.join(__dirname, 'data', 'commodity_price.csv');
-    console.log('📂 Loading Market Data from CSV:', dataPath);
-    const rawData = await parseCSV(dataPath);
-
-    // Transform CSV data to match API format
-    csvMarketData = rawData.map((row, index) => ({
-      id: `csv-${index + 1}`,
-      crop: `${row['Commodity']} (${row['Variety']})`,
-      mandi: `${row['Market']}, ${row['District']}, ${row['State']}`,
-      price: `₹${row['Modal_x0020_Price']}`,
-      trend: Math.random() > 0.5 ? 'up' : 'down', // CSV doesn't have trend, simulated
-      source: 'AgriWise Database (CSV)',
-      date: row['Arrival_Date']
-    }));
-
-    console.log(`✅ Loaded ${csvMarketData.length} records from CSV`);
-  } catch (error) {
-    console.error('❌ Failed to load CSV data:', error);
-  }
-};
-
-// Load immediately on start
-loadCSVData();
-
-const providers = {
-  // 1. Primary: Data.gov.in API
-  primary: async () => {
-    const RESOURCE_ID = '9ef84268-d588-465a-a308-a864a43d0070';
-    const API_KEY = '579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b';
-    const URL = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=100`;
-
-    console.log('📡 Fetching from Primary API (data.gov.in)...');
-    const response = await axios.get(URL, { timeout: 5000 }); // 5s timeout
-    const records = response.data.records;
-
-    if (!records || records.length === 0) throw new Error('Empty response from Primary API');
-
-    return records.map((record, index) => ({
-      id: index + 1,
-      crop: `${record.commodity} (${record.variety})`,
-      mandi: `${record.market}, ${record.state}`,
-      price: `₹${record.modal_price}`,
-      trend: Math.random() > 0.5 ? 'up' : 'down',
-      source: 'Govt API'
-    }));
-  },
-
-  // 2. CSV Provider (Preferred Fallback)
-  csv: async () => {
-    if (csvMarketData.length > 0) {
-      console.log('📂 Serving data from CSV Cache...');
-      // Return a random subset or all? Let's return first 100 to match limit
-      // Or maybe shuffle them to keep it dynamic if the list is huge
-      const shuffled = [...csvMarketData].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, 100);
-    }
-    throw new Error('CSV Data not available');
-  },
-
-  // 3. Secondary: Robust Simulation (Last Resort)
-  secondary: async () => {
-    console.log('🔄 Engaging Secondary Provider (AgriWise Simulation)...');
-    // Generate realistic 100 items
-    return Array.from({ length: 100 }, (_, i) => {
-      const cropNames = Object.keys(cropData);
-      const cropName = cropNames[i % cropNames.length];
-      const info = cropData[cropName];
-      const market = info.markets[i % info.markets.length];
-
-      // Random price within realistic range
-      const min = info.price[0];
-      const max = info.price[1];
-      const price = Math.floor(Math.random() * (max - min + 1)) + min;
-
-      return {
-        id: i + 1,
-        crop: `${cropName} (${['Desi', 'Hybrid', 'Local', 'Export'].at(Math.floor(Math.random() * 4))})`,
-        mandi: market,
-        price: `₹${price}`,
-        trend: Math.random() > 0.5 ? 'up' : Math.random() > 0.5 ? 'down' : 'stable',
-        source: 'AgriWise Grid'
-      };
-    });
-  }
-};
-
-const fetchWithFailover = async () => {
-  // Try CSV first as requested by user ("if we dont have any other data source rather than generating")
-  // Actually user said: "i added data csv file... i want you to take data from it if we dont have any other data source rather than generating"
-  // This implies: API -> CSV -> Generation. 
-
-  // Try Primary (API)
-  try {
-    const data = await providers.primary();
-    return data;
-  } catch (error) {
-    console.warn(`⚠️ Primary Provider Failed: ${error.message}`);
-  }
-
-  // Try CSV (File Data)
-  try {
-    const data = await providers.csv();
-    return data;
-  } catch (error) {
-    console.warn(`⚠️ CSV Provider Failed/Empty: ${error.message}`);
-  }
-
-  // Try Secondary (Guaranteed Fallback - Generation)
-  try {
-    const data = await providers.secondary();
-    return data;
-  } catch (error) {
-    console.error(`❌ Critical: All providers failed.`, error);
-    return []; // Should never happen with simulation
-  }
-};
-
-// 1. Current Market Prices (Live API with Redundancy)
-app.get('/api/market/prices', async (req, res) => {
-  try {
-    const prices = await fetchWithFailover();
-    res.json(prices);
-  } catch (error) {
-    res.status(500).json({ error: "Market data unavailable" });
-  }
-});
-
-// 2. Historical Data (Updated to use CSV Anchor)
-app.get('/api/market/history', async (req, res) => {
-  const { crop } = req.query;
-  try {
-    if (!crop) return res.status(400).json({ error: 'Crop parameter required' });
-
-    // 1. Try DB first (Scenario: Real persistent data)
-    let historyData = await MarketPrice.find({ crop }).sort({ date: 1 }).limit(50);
-
-    // 2. If no DB data, check CSV (Scenario: User provided file)
-    if (historyData.length === 0) {
-      // Find current price from CSV to anchor the simulation
-      // We look for partial match because crop name in CSV might be longer, e.g., "Wheat (Lokwan)"
-      const csvItem = csvMarketData.find(c => c.crop.toLowerCase().includes(crop.toLowerCase()));
-
-      if (csvItem) {
-        // Parse "₹2850" -> 2850
-        const currentPrice = parseInt(csvItem.price.replace(/[^\d]/g, '')) || 2500;
-
-        // Generate 6 months of simulated history ending at currentPrice
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        const simulatedData = months.map((month, index) => {
-          // Trend: slightly lower in past, rising to current? or random variation
-          // Let's make it realistic: variation around the target
-          const variance = (Math.random() - 0.5) * 0.2; // +/- 10%
-          // Trend factor: assume price rose slightly (0.5% per month)
-          const trend = 1 - (months.length - 1 - index) * 0.02;
-
-          let price = currentPrice * trend * (1 + variance);
-
-          // Force the LAST item to match the CURRENT CSV price exactly (or very close)
-          if (index === months.length - 1) price = currentPrice;
-
-          return {
-            month, // Just label
-            price: Math.round(price)
-          };
-        });
-
-        return res.json({ crop, period: '6m', data: simulatedData, source: 'AgriWise Simulation (Anchored to CSV)' });
-      }
-    }
-
-    // Default DB Mapping
-    const data = historyData.map(record => ({
-      month: new Date(record.date).toLocaleString('default', { month: 'short' }),
-      price: record.price
-    }));
-
-    res.json({ crop, period: '6m', data });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch history' });
-  }
-});
-
-// 5. [NEW] Available Crops List (From CSV)
-app.get('/api/market/crops', (req, res) => {
-  try {
-    if (csvMarketData.length > 0) {
-      // Extract unique commodity names
-      const crops = [...new Set(csvMarketData.map(item => item.crop))].sort();
-      res.json(crops);
-    } else {
-      // Fallback
-      res.json(Object.keys(cropData));
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch crops' });
-  }
-});
 
 // ================= SERVER START =================
 const PORT = process.env.PORT || 5001;
