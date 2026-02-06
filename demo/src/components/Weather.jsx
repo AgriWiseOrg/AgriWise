@@ -359,7 +359,11 @@ const Weather = () => {
   const speakAdvisory = (text) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
+
+    // Check if the text is a key in our translations, if not use it as is
+    // (Backend advisories are already translated and passed as strings)
     const utterance = new SpeechSynthesisUtterance(text);
+
     const voices = window.speechSynthesis.getVoices();
     const langMap = {
       en: 'en-IN', hi: 'hi-IN', te: 'te-IN',
@@ -367,9 +371,17 @@ const Weather = () => {
       ml: 'ml-IN', bn: 'bn-IN'
     };
     const targetLang = langMap[lang] || 'en-IN';
-    const voice = voices.find(v => v.lang.startsWith(targetLang)) || voices.find(v => v.lang.startsWith('en'));
+
+    // Attempt to find a native voice for the specific Indian language
+    const voice = voices.find(v => v.lang.startsWith(targetLang)) ||
+      voices.find(v => v.lang.includes(targetLang.split('-')[0])) ||
+      voices.find(v => v.lang.startsWith('en'));
+
     if (voice) utterance.voice = voice;
-    utterance.rate = 0.85;
+    utterance.lang = targetLang; // Critical for correct engine selection
+    utterance.rate = 0.8; // Slower for better clarity
+    utterance.pitch = 1.0;
+
     window.speechSynthesis.speak(utterance);
   };
 
