@@ -207,7 +207,7 @@ const FrontPage = ({ onLogout }) => {
             <h2 className="text-4xl md:text-6xl font-black leading-tight mb-8">
               Wheat prices are up <span className="text-emerald-400 italic underline decoration-emerald-500/30 underline-offset-8">12%</span> in your region.
             </h2>
-            <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-10 py-4 rounded-2xl transition-all flex items-center gap-3 group shadow-xl shadow-emerald-500/20 active:scale-95">
+            <button onClick={() => navigate('/market-prices')} className="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-10 py-4 rounded-2xl transition-all flex items-center gap-3 group shadow-xl shadow-emerald-500/20 active:scale-95">
               View Market Trends
               <ChevronRight className="group-hover:translate-x-1 transition-transform" />
             </button>
