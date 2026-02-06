@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Weather = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // HMR Test
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState('en');
@@ -387,7 +387,7 @@ const Weather = () => {
   const Sunbeams = () => (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className={`absolute top-[-10%] left-[${i * 20}%] w-32 h-[120%] bg-gradient-to-b from-white/20 to-transparent blur-3xl -rotate-12 animate-[pulse_4s_ease-in-out_infinite]`} style={{ animationDelay: `${i * 0.5}s` }}></div>
+        <div key={i} className="absolute top-[-10%] w-32 h-[120%] bg-gradient-to-b from-white/20 to-transparent blur-3xl -rotate-12 animate-[pulse_4s_ease-in-out_infinite]" style={{ left: `${i * 20}%`, animationDelay: `${i * 0.5}s` }}></div>
       ))}
     </div>
   );
