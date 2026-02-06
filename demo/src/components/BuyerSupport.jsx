@@ -205,220 +205,259 @@ const BuyerSupport = () => {
         }, 1500);
     };
 
-    const [expandedFaq, setExpandedFaq] = useState(null);
+    const [activeView, setActiveView] = useState('main');
 
-    const faqDetails = [
-        {
-            title: t.procurementTitle,
-            desc: t.procurementDesc,
-            icon: '📦',
-            color: 'border-blue-300',
-            details: t.procurementFull,
-            links: [
-                { label: 'E-Auction Rules', url: '#' },
-                { label: 'Tender Tracker', url: '#' },
-                { label: 'Bulk Buy Guide', url: '#' }
-            ]
-        },
-        {
-            title: t.logisticsTitle,
-            desc: t.logisticsDesc,
-            icon: '🚚',
-            color: 'border-indigo-300',
-            details: t.logisticsFull,
-            links: [
-                { label: 'Book a Vehicle', url: '#' },
-                { label: 'Track My Fleet', url: '#' },
-                { label: 'Carrier Partners', url: '#' }
-            ]
-        },
-        {
-            title: t.paymentTitle,
-            desc: t.paymentDesc,
-            icon: '💳',
-            color: 'border-emerald-300',
-            details: t.paymentFull,
-            links: [
-                { label: 'Settlement Cycles', url: '#' },
-                { label: 'GST Invoice Help', url: '#' },
-                { label: 'Wallet Settings', url: '#' }
-            ]
-        },
-        {
-            title: t.qualityTitle,
-            desc: t.qualityDesc,
-            icon: '🔬',
-            color: 'border-amber-300',
-            details: t.qualityFull,
-            links: [
-                { label: 'Grading Standards', url: '#' },
-                { label: 'Lab Test Report', url: '#' },
-                { label: 'Dispute a Grade', url: '#' }
-            ]
-        }
-    ];
+    const MainView = () => (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-12">
+            {/* Hero Section */}
+            <div className="bg-white rounded-[3.5rem] p-10 md:p-14 shadow-2xl border-2 border-slate-50 relative overflow-hidden group">
+                <div className="relative z-10">
+                    <span className="inline-block bg-blue-100 text-blue-700 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-6">Enterprise Support 2.0</span>
+                    <h1 className="text-4xl md:text-7xl font-black text-slate-900 mb-6 tracking-tight leading-none">
+                        Optimize your <br /><span className="text-blue-600">procurement</span>
+                    </h1>
+                    <p className="text-slate-500 text-lg md:text-xl font-bold max-w-xl leading-relaxed">
+                        Streamline bidding, logistics, and quality assurance through our advanced buyer assistance portal.
+                    </p>
+                </div>
+                <div className="absolute right-[-50px] top-[-50px] w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-50 group-hover:bg-blue-100 transition-colors duration-700"></div>
+            </div>
 
-    return (
-        <div className="min-h-screen bg-slate-50 pb-20">
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <button onClick={() => navigate('/marketplace')} className="flex items-center gap-2 text-indigo-600 font-bold">
-                        <span>←</span> {t.back}
+            {/* Multimodal Action Bar */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="tel:+916301230747" className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-[2.5rem] shadow-2xl shadow-blue-200 hover:scale-105 transition-all group text-center">
+                    <span className="text-5xl mb-3 group-hover:rotate-12 transition-transform duration-300">📞</span>
+                    <span className="font-black text-xl tracking-tight">{t.voiceCall}</span>
+                    <span className="text-[10px] opacity-80 uppercase font-bold mt-2 tracking-widest">Direct Ops Line</span>
+                </a>
+                <a href="https://wa.me/916301230747" target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-[2.5rem] shadow-2xl shadow-emerald-200 hover:scale-105 transition-all group text-center">
+                    <span className="text-5xl mb-3 group-hover:rotate-12 transition-transform duration-300">💬</span>
+                    <span className="font-black text-xl tracking-tight">{t.whatsapp}</span>
+                    <span className="text-[10px] opacity-80 uppercase font-bold mt-2 tracking-widest">24/7 Logistics Help</span>
+                </a>
+                <a href="sms:+916301230747" className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2.5rem] shadow-2xl shadow-slate-300 hover:scale-105 transition-all group text-center">
+                    <span className="text-5xl mb-3 group-hover:rotate-12 transition-transform duration-300">📱</span>
+                    <span className="font-black text-xl tracking-tight">{t.smsIvr}</span>
+                    <span className="text-[10px] opacity-80 uppercase font-bold mt-2 tracking-widest">Query Status</span>
+                </a>
+            </section>
+
+            <hr className="border-slate-200" />
+
+            {/* Interactive Feature Cards */}
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FeatureCard
+                    icon="📦"
+                    title={t.procurementTitle}
+                    desc={t.procurementDesc}
+                    color="blue"
+                    onClick={() => setActiveView('procurement')}
+                    footer="Open Procurement Hub →"
+                    bgIcon="🏢"
+                />
+                <FeatureCard
+                    icon="🚚"
+                    title={t.logisticsTitle}
+                    desc={t.logisticsDesc}
+                    color="indigo"
+                    onClick={() => setActiveView('logistics')}
+                    footer="Logistics Dashboard →"
+                    bgIcon="🛣️"
+                />
+                <FeatureCard
+                    icon="🔬"
+                    title={t.qualityTitle}
+                    desc={t.qualityDesc}
+                    color="amber"
+                    onClick={() => setActiveView('quality')}
+                    footer="Grading Protocols →"
+                    bgIcon="📋"
+                />
+                <FeatureCard
+                    icon="💳"
+                    title={t.paymentTitle}
+                    desc={t.paymentDesc}
+                    color="emerald"
+                    onClick={() => setActiveView('payments')}
+                    footer="Escrow Settings →"
+                    bgIcon="💰"
+                />
+            </section>
+
+            {/* Dispute Resolution Section */}
+            <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 rounded-[3rem] p-10 md:p-14 text-white overflow-hidden relative group shadow-2xl">
+                <div className="relative z-10 max-w-lg space-y-6">
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-none">{t.dispute} ⚖️</h2>
+                    <p className="text-slate-400 font-medium text-lg leading-relaxed">Flag issues with quality, weight mismatch, or delivery delays. Our dedicated auditing team will mediate to ensure a fair resolution within 48 hours.</p>
+                    <button
+                        onClick={() => setShowDisputeForm(!showDisputeForm)}
+                        className="bg-white text-slate-900 font-black px-10 py-5 rounded-2xl hover:bg-rose-50 hover:text-rose-600 transition-all active:scale-95 shadow-xl shadow-black/20"
+                    >
+                        {showDisputeForm ? 'Cancel Dispute' : 'Raise Dispute Now'}
                     </button>
-                    <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black uppercase text-slate-400 hidden md:block">{t.selectLang}</span>
-                        <select
-                            value={lang}
-                            onChange={(e) => setLang(e.target.value)}
-                            className="bg-slate-100 border-none rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-indigo-700 outline-none cursor-pointer hover:bg-indigo-50 transition-all shadow-sm"
-                        >
-                            <option value="en">English (EN)</option>
-                            <option value="hi">हिंदी (HI)</option>
-                            <option value="te">తెలుగు (TE)</option>
-                            <option value="ta">தமிழ் (TA)</option>
-                            <option value="ml">മലയാളം (ML)</option>
-                            <option value="kn">ಕನ್ನಡ (KN)</option>
-                            <option value="pa">ਪੰਜਾਬੀ (PA)</option>
-                            <option value="mr">मराठी (MR)</option>
+                </div>
+                <div className="absolute -right-16 -bottom-16 text-[15rem] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-1000 uppercase pointer-events-none">⚖️</div>
+            </section>
+
+            {showDisputeForm && (
+                <form onSubmit={handleQuerySubmit} className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 shadow-2xl space-y-6 animate-in slide-in-from-top duration-500">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Farmer Name / ID</label>
+                            <input required type="text" placeholder="Seller Details" className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl px-5 py-4 outline-none transition-all font-medium" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Order/Lot ID</label>
+                            <input required type="text" placeholder="Transaction ID" className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl px-5 py-4 outline-none transition-all font-medium" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Type of Issue</label>
+                        <select required className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl px-5 py-4 outline-none transition-all font-bold text-slate-700">
+                            <option value="">Select category...</option>
+                            <option value="quality">Quality Mismatch</option>
+                            <option value="weight">Weight/Quantity Shortage</option>
+                            <option value="delivery">Late Delivery</option>
+                            <option value="invoice">Invoice/GST Error</option>
                         </select>
                     </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Message</label>
+                        <textarea required rows="4" placeholder="Briefly describe the issue for our verification team..." className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl px-5 py-4 outline-none transition-all font-medium resize-none"></textarea>
+                    </div>
+                    <button
+                        disabled={formStatus === 'sending'}
+                        className={`w-full py-5 rounded-[2rem] font-black text-lg shadow-xl transition-all active:scale-95 ${formStatus === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-600 text-white shadow-rose-200'}`}
+                    >
+                        {formStatus === 'sending' ? 'Registering...' : formStatus === 'success' ? 'Dispute Raised! ✅' : 'Submit for Investigation'}
+                    </button>
+                </form>
+            )}
+        </div>
+    );
+
+    const FeatureCard = ({ icon, title, desc, onClick, color, footer, bgIcon }) => {
+        const colors = {
+            blue: "from-blue-50 border-blue-100 hover:border-blue-300",
+            indigo: "from-indigo-50 border-indigo-100 hover:border-indigo-300",
+            amber: "from-amber-50 border-amber-100 hover:border-amber-300",
+            emerald: "from-emerald-50 border-emerald-100 hover:border-emerald-300"
+        };
+        const btnColors = {
+            blue: "bg-blue-600",
+            indigo: "bg-indigo-600",
+            amber: "bg-amber-600",
+            emerald: "bg-emerald-600"
+        };
+        return (
+            <div onClick={onClick} className={`bg-gradient-to-br ${colors[color]} to-white border-2 rounded-[3rem] p-10 cursor-pointer hover:shadow-2xl transition-all group relative overflow-hidden`}>
+                <div className="relative z-10">
+                    <span className="text-6xl block mb-6 group-hover:scale-110 transition-transform">{icon}</span>
+                    <h3 className="text-2xl font-black text-slate-800 mb-2">{title}</h3>
+                    <p className="text-slate-500 font-bold mb-6 leading-relaxed">{desc}</p>
+                    <span className={`inline-block ${btnColors[color]} text-white font-black px-6 py-3 rounded-xl text-sm transition-transform active:scale-95`}>{footer}</span>
                 </div>
+                <div className="absolute -right-10 -bottom-10 text-[12rem] opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">{bgIcon}</div>
             </div>
+        );
+    };
 
-            <div className="max-w-4xl mx-auto p-6 space-y-8">
-                {/* Title Section */}
-                <section className="text-center space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight">{t.title} 🏢</h1>
-                    <p className="text-slate-500 font-medium">{t.subtitle}</p>
-                </section>
+    const SubPageHeader = () => (
+        <button onClick={() => setActiveView('main')} className="text-blue-600 font-black flex items-center gap-2 mb-8 bg-blue-50 px-6 py-3 rounded-2xl hover:bg-blue-100 transition-all w-fit group">
+            <span className="group-hover:-translate-x-1 transition-transform">←</span> Back to Dashboard
+        </button>
+    );
 
-                {/* Multimodal Action Bar */}
-                <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <a href="tel:+916301230747" className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-[2.5rem] shadow-2xl shadow-indigo-200 hover:scale-105 transition-all group">
-                        <span className="text-5xl mb-3 group-hover:rotate-12 transition-transform duration-300">📞</span>
-                        <span className="font-black text-xl tracking-tight">{t.voiceCall}</span>
-                        <span className="text-[10px] opacity-80 uppercase font-bold mt-2 tracking-widest">Direct Ops Line</span>
-                    </a>
-                    <a href="https://wa.me/916301230747" target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-[2.5rem] shadow-2xl shadow-emerald-200 hover:scale-105 transition-all group">
-                        <span className="text-5xl mb-3 group-hover:rotate-12 transition-transform duration-300">💬</span>
-                        <span className="font-black text-xl tracking-tight">{t.whatsapp}</span>
-                        <span className="text-[10px] opacity-80 uppercase font-bold mt-2 tracking-widest">24/7 Logistics Help</span>
-                    </a>
-                    <a href="sms:+916301230747" className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2.5rem] shadow-2xl shadow-slate-300 hover:scale-105 transition-all group">
-                        <span className="text-5xl mb-3 group-hover:rotate-12 transition-transform duration-300">📱</span>
-                        <span className="font-black text-xl tracking-tight">{t.smsIvr}</span>
-                        <span className="text-[10px] opacity-80 uppercase font-bold mt-2 tracking-widest">Query Status</span>
-                    </a>
-                </section>
+    const SubPageView = ({ title, fullText, icon, colorClass, children, bgIcon }) => (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8">
+            <SubPageHeader />
+            <div className={`bg-white rounded-[3.5rem] p-10 md:p-14 shadow-2xl border-2 ${colorClass} relative overflow-hidden`}>
+                <div className="max-w-2xl relative z-10 space-y-8">
+                    <h2 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-none">{title} {icon}</h2>
+                    <p className="text-slate-600 font-bold text-lg md:text-xl leading-relaxed">{fullText}</p>
+                    {children}
+                </div>
+                <div className="absolute -right-20 -bottom-20 text-[20rem] opacity-5 rotate-12 pointer-events-none">{bgIcon}</div>
+            </div>
+        </div>
+    );
 
-                <hr className="border-slate-200" />
+    return (
+        <div className="min-h-screen bg-slate-50 pb-20 font-sans">
+            {/* Main Navigation Header */}
+            <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+                <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+                    <button onClick={() => activeView === 'main' ? navigate('/marketplace') : setActiveView('main')} className="flex items-center gap-2 text-blue-700 font-black uppercase text-xs tracking-widest hover:text-blue-500 transition-colors">
+                        <span>←</span> {activeView === 'main' ? t.back : 'Dashboard'}
+                    </button>
+                    <select
+                        value={lang}
+                        onChange={(e) => setLang(e.target.value)}
+                        className="bg-slate-100 border-none rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-blue-700 outline-none cursor-pointer hover:bg-white hover:ring-2 hover:ring-blue-100 transition-all shadow-sm"
+                    >
+                        <option value="en">English (EN)</option>
+                        <option value="hi">हिंदी (HI)</option>
+                        <option value="te">తెలుగు (TE)</option>
+                        <option value="ta">தமிழ் (TA)</option>
+                        <option value="ml">മലയാളം (ML)</option>
+                        <option value="kn">ಕನ್ನಡ (KN)</option>
+                        <option value="pa">ਪੰਜਾਬੀ (PA)</option>
+                        <option value="mr">मराठी (MR)</option>
+                    </select>
+                </div>
+            </header>
 
-                {/* Buyer Tools/FAQs */}
-                <section className="space-y-4">
-                    <h2 className="text-xl font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                        <span>📖</span> {t.faqs}
-                    </h2>
-
-                    <div className="grid gap-4">
-                        {faqDetails.map((item, i) => (
-                            <div key={i} className={`bg-white p-6 rounded-3xl border-2 ${item.color} shadow-sm hover:shadow-md transition-all`}>
-                                <div className="flex items-start gap-4">
-                                    <span className="text-3xl">{item.icon}</span>
-                                    <div className="flex-1">
-                                        <h3 className="font-black text-slate-800 text-lg">{item.title}</h3>
-                                        <p className="text-slate-500 font-medium text-sm mt-1">{item.desc}</p>
-
-                                        {expandedFaq === i && (
-                                            <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                <p className="text-slate-700 font-bold text-sm leading-relaxed mb-3">
-                                                    {item.details}
-                                                </p>
-                                                {item.links && (
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {item.links.map((link, idx) => (
-                                                            <a
-                                                                key={idx}
-                                                                href={link.url}
-                                                                className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase text-indigo-700 hover:bg-indigo-50 transition-all flex items-center gap-1 shadow-sm"
-                                                            >
-                                                                {link.label} ↗
-                                                            </a>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        <button
-                                            onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
-                                            className="text-indigo-600 font-bold text-xs mt-3 uppercase tracking-widest border-b-2 border-indigo-100 hover:border-indigo-600 transition-all"
-                                        >
-                                            {expandedFaq === i ? 'Show Less ↑' : 'Learn More →'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Dispute Resolution Section */}
-                <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-[3rem] p-10 md:p-14 text-white overflow-hidden relative group shadow-2xl">
-                    <div className="relative z-10 max-w-lg space-y-6">
-                        <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-none">{t.dispute} ⚖️</h2>
-                        <p className="text-slate-400 font-medium text-lg leading-relaxed">Flag issues with quality, weight mismatch, or delivery delays. Our dedicated auditing team will mediate to ensure a fair resolution within 48 hours.</p>
-                        <button
-                            onClick={() => setShowDisputeForm(!showDisputeForm)}
-                            className="bg-white text-slate-900 font-black px-10 py-5 rounded-2xl hover:bg-rose-50 hover:text-rose-600 transition-all active:scale-95 shadow-xl shadow-black/20"
-                        >
-                            {showDisputeForm ? 'Cancel Dispute' : 'Raise Dispute Now'}
-                        </button>
-                    </div>
-                    <div className="absolute -right-16 -bottom-16 text-[15rem] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-1000">⚖️</div>
-                </section>
-
-                {/* Dispute Form (Conditional) */}
-                {showDisputeForm && (
-                    <form onSubmit={handleQuerySubmit} className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 shadow-2xl space-y-6 animate-in slide-in-from-top duration-500">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Farmer Name / ID</label>
-                                <input required type="text" placeholder="Seller Details" className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-500 rounded-2xl px-5 py-4 outline-none transition-all font-medium" />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Order/Lot ID</label>
-                                <input required type="text" placeholder="Transaction ID" className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-500 rounded-2xl px-5 py-4 outline-none transition-all font-medium" />
-                            </div>
+            <main className="max-w-4xl mx-auto p-6 mt-8">
+                {activeView === 'main' && <MainView />}
+                {activeView === 'procurement' && (
+                    <SubPageView title={t.procurementTitle} fullText={t.procurementFull} icon="📦" colorClass="border-blue-50" bgIcon="🏢">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                            <button className="flex items-center gap-4 p-6 bg-slate-50 rounded-[2rem] border-2 border-slate-100 hover:border-blue-400 transition-all text-left group">
+                                <span className="text-3xl group-hover:scale-110 transition-transform">⚖️</span>
+                                <span className="font-black text-slate-800 tracking-tight">E-Auction Rules</span>
+                            </button>
+                            <button className="flex items-center gap-4 p-6 bg-slate-50 rounded-[2rem] border-2 border-slate-100 hover:border-blue-400 transition-all text-left group">
+                                <span className="text-3xl group-hover:scale-110 transition-transform">📝</span>
+                                <span className="font-black text-slate-800 tracking-tight">Tender Tracker</span>
+                            </button>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Type of Issue</label>
-                            <select required className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-500 rounded-2xl px-5 py-4 outline-none transition-all font-bold text-slate-700">
-                                <option value="">Select category...</option>
-                                <option value="quality">Quality Mismatch</option>
-                                <option value="weight">Weight/Quantity Shortage</option>
-                                <option value="delivery">Late Delivery</option>
-                                <option value="invoice">Invoice/GST Error</option>
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Message</label>
-                            <textarea required rows="4" placeholder="Briefly describe the issue for our verification team..." className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-500 rounded-2xl px-5 py-4 outline-none transition-all font-medium resize-none"></textarea>
-                        </div>
-                        <button
-                            disabled={formStatus === 'sending'}
-                            className={`w-full py-5 rounded-[2rem] font-black text-lg shadow-xl transition-all active:scale-95 ${formStatus === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-600 text-white shadow-rose-200'}`}
-                        >
-                            {formStatus === 'sending' ? 'Registering...' : formStatus === 'success' ? 'Dispute Raised! ✅' : 'Submit for Investigation'}
-                        </button>
-                    </form>
+                    </SubPageView>
                 )}
-            </div>
+                {activeView === 'logistics' && (
+                    <SubPageView title={t.logisticsTitle} fullText={t.logisticsFull} icon="🚚" colorClass="border-indigo-50" bgIcon="🛣️">
+                        <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-[2.5rem] text-white shadow-xl shadow-indigo-100">
+                            <h4 className="font-black uppercase tracking-widest text-xs mb-4 opacity-80">Live Tracking Feature</h4>
+                            <p className="font-bold text-lg leading-relaxed">Use the "Marketplace > Orders" tab to see real-time GPS status and temperature logs for your current shipments.</p>
+                        </div>
+                    </SubPageView>
+                )}
+                {activeView === 'quality' && (
+                    <SubPageView title={t.qualityTitle} fullText={t.qualityFull} icon="🔬" colorClass="border-amber-50" bgIcon="📋">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                            {['Grade A+', 'Grade A', 'Grade B'].map((g, i) => (
+                                <div key={i} className="bg-slate-50 p-8 rounded-[2rem] border-2 border-amber-100 text-center group hover:bg-white hover:shadow-xl hover:border-amber-400 transition-all">
+                                    <span className="text-4xl block mb-3 group-hover:rotate-12 transition-transform">{['🏅', '🥈', '🥉'][i]}</span>
+                                    <h4 className="font-black text-slate-800 uppercase text-xs tracking-widest mb-2">{g}</h4>
+                                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{['Export Grade', 'Domestic Std', 'Industrial'][i]}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </SubPageView>
+                )}
+                {activeView === 'payments' && (
+                    <SubPageView title={t.paymentTitle} fullText={t.paymentFull} icon="💳" colorClass="border-emerald-50" bgIcon="💰">
+                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                            <button className="bg-emerald-600 text-white font-black px-10 py-5 rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 active:scale-95">Download GST Helper</button>
+                            <button className="bg-slate-900 text-white font-black px-10 py-5 rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95">Wallet Settings</button>
+                        </div>
+                    </SubPageView>
+                )}
+            </main>
 
-            {/* Floating Decorative Footer */}
-            <div className="text-center p-10">
-                <p className="text-slate-300 font-black italic">AgriWise Procurement Support — Securing the Supply Chain</p>
-            </div>
+            {/* Premium Decorative Footer */}
+            <footer className="text-center p-14 opacity-40">
+                <p className="text-slate-400 font-black text-xs uppercase tracking-[0.3em] italic">AgriWise Enterprise — Securing the Supply Chain</p>
+            </footer>
         </div>
     );
 };
