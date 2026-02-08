@@ -1,25 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrendingUp, Sprout, Landmark, ShoppingBag,
   CloudSun, LifeBuoy, Search, LogOut, ShoppingCart,
-  ChevronRight, MapPin, Droplets, RefreshCw, Wind, Clock
+  ChevronRight, MapPin, Droplets, RefreshCw, Wind, Clock, X
 } from 'lucide-react';
 import { useCart } from './CartContext';
 
 const FrontPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const { totalItems } = useCart();
+  const searchInputRef = useRef(null);
 
+  // States
   const [weatherData, setWeatherData] = useState({ temp: '--', humidity: '--', wind: '--' });
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // Update Time
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Keyboard shortcut (CTRL+K) to focus search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const fetchLiveWeather = useCallback(async (lat, lon) => {
@@ -70,6 +86,12 @@ const FrontPage = ({ onLogout }) => {
     { title: 'Weather', icon: <CloudSun />, desc: 'Precision forecast', color: 'bg-sky-600', path: '/weather' },
     { title: 'Support', icon: <LifeBuoy />, desc: 'Expert help', color: 'bg-rose-600', path: '/support' },
   ];
+
+  // Filtering Logic
+  const filteredItems = menuItems.filter(item => 
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-emerald-100">
@@ -177,74 +199,113 @@ const FrontPage = ({ onLogout }) => {
           </motion.div>
         </header>
 
-        {/* Search Bar */}
+        {/* Search Bar - Functional */}
         <div className="relative mb-12 group">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
           <input
+            ref={searchInputRef}
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for crops, mandi rates, or expert advice..."
             className="w-full bg-white border-2 border-slate-200 rounded-[2rem] py-6 px-16 shadow-lg shadow-slate-200/40 focus:shadow-emerald-500/10 focus:border-emerald-500 transition-all outline-none text-lg font-medium"
           />
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex gap-2">
-            <kbd className="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold border border-slate-300">CTRL</kbd>
-            <kbd className="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold border border-slate-300">K</kbd>
+          <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
+             {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-red-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+             )}
+            <div className="hidden md:flex gap-2">
+              <kbd className="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold border border-slate-300">CTRL</kbd>
+              <kbd className="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold border border-slate-300">K</kbd>
+            </div>
           </div>
         </div>
 
-        {/* Hero Card */}
-        <motion.div
-          whileHover={{ y: -5 }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-10 md:p-16 text-white shadow-2xl shadow-slate-900/30 mb-12 border border-slate-800"
-        >
-          <div className="relative z-10 max-w-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        {/* Hero Card - Hidden when searching for better focus */}
+        {!searchQuery && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ y: -5 }}
+            className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-10 md:p-16 text-white shadow-2xl shadow-slate-900/30 mb-12 border border-slate-800"
+          >
+            <div className="relative z-10 max-w-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </div>
+                <span className="text-emerald-400 font-black text-xs uppercase tracking-[0.3em]">Market Intelligence</span>
               </div>
-              <span className="text-emerald-400 font-black text-xs uppercase tracking-[0.3em]">Market Intelligence</span>
+              <h2 className="text-4xl md:text-6xl font-black leading-tight mb-8">
+                Wheat prices are up <span className="text-emerald-400 italic underline decoration-emerald-500/30 underline-offset-8">12%</span> in your region.
+              </h2>
+              <button onClick={() => navigate('/market-prices')} className="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-10 py-4 rounded-2xl transition-all flex items-center gap-3 group shadow-xl shadow-emerald-500/20 active:scale-95">
+                View Market Trends
+                <ChevronRight className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
-            <h2 className="text-4xl md:text-6xl font-black leading-tight mb-8">
-              Wheat prices are up <span className="text-emerald-400 italic underline decoration-emerald-500/30 underline-offset-8">12%</span> in your region.
-            </h2>
-            <button onClick={() => navigate('/market-prices')} className="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-10 py-4 rounded-2xl transition-all flex items-center gap-3 group shadow-xl shadow-emerald-500/20 active:scale-95">
-              View Market Trends
-              <ChevronRight className="group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-          <div className="absolute top-0 right-0 w-full h-full opacity-30 pointer-events-none">
-            <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-500 rounded-full blur-[120px]" />
-          </div>
-          <Sprout className="absolute -right-10 -bottom-10 w-64 h-64 text-emerald-500/10 rotate-12" />
-        </motion.div>
+            <div className="absolute top-0 right-0 w-full h-full opacity-30 pointer-events-none">
+              <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-500 rounded-full blur-[120px]" />
+            </div>
+            <Sprout className="absolute -right-10 -bottom-10 w-64 h-64 text-emerald-500/10 rotate-12" />
+          </motion.div>
+        )}
 
         {/* Grid Menu */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <AnimatePresence>
-            {menuItems.map((item, i) => (
-              <motion.button
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => navigate(item.path)}
-                className="group relative bg-white border-2 border-slate-200 p-8 rounded-[2.5rem] text-left hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300"
+          <AnimatePresence mode="popLayout">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item, i) => (
+                <motion.button
+                  key={item.title}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => navigate(item.path)}
+                  className="group relative bg-white border-2 border-slate-200 p-8 rounded-[2.5rem] text-left hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300"
+                >
+                  <div className={`${item.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-slate-200 group-hover:scale-110 transition-transform`}>
+                    {React.cloneElement(item.icon, { size: 32 })}
+                  </div>
+                  {item.badge && (
+                    <span className="absolute top-8 right-8 bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
+                      {item.badge}
+                    </span>
+                  )}
+                  <h3 className="text-2xl font-black text-slate-900 mb-2">{item.title}</h3>
+                  <p className="text-slate-500 font-bold leading-relaxed">{item.desc}</p>
+                  <div className="mt-8 flex items-center gap-2 text-emerald-600 font-black text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                    Enter Dashboard <ChevronRight size={16} />
+                  </div>
+                </motion.button>
+              ))
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                className="col-span-full py-20 text-center"
               >
-                <div className={`${item.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-slate-200 group-hover:scale-110 transition-transform`}>
-                  {React.cloneElement(item.icon, { size: 32 })}
+                <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                  <Search size={32} />
                 </div>
-                {item.badge && (
-                  <span className="absolute top-8 right-8 bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
-                    {item.badge}
-                  </span>
-                )}
-                <h3 className="text-2xl font-black text-slate-900 mb-2">{item.title}</h3>
-                <p className="text-slate-500 font-bold leading-relaxed">{item.desc}</p>
-                <div className="mt-8 flex items-center gap-2 text-emerald-600 font-black text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                  Enter Dashboard <ChevronRight size={16} />
-                </div>
-              </motion.button>
-            ))}
+                <h3 className="text-2xl font-black text-slate-800">No tools found</h3>
+                <p className="text-slate-500">We couldn't find anything matching "{searchQuery}"</p>
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="mt-6 text-emerald-600 font-black underline underline-offset-4"
+                >
+                  Clear search
+                </button>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </main>
