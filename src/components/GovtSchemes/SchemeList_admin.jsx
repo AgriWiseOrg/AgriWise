@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2, X, LayoutDashboard, Settings, Mail, Clock } from 'lucide-react';
+import { 
+  ArrowLeft, Plus, Trash2, X, LayoutDashboard, 
+  Settings, Mail, Clock, Download 
+} from 'lucide-react'; // Added Download icon
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -7,7 +10,7 @@ const SchemeList = () => {
   const navigate = useNavigate();
   const [schemes, setSchemes] = useState([]);
   const [applications, setApplications] = useState([]);
-  const [activeTab, setActiveTab] = useState('manager'); // 'manager' | 'dashboard'
+  const [activeTab, setActiveTab] = useState('manager');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newScheme, setNewScheme] = useState({ name: '', benefit: '', minLand: '', maxLand: '' });
   const [loading, setLoading] = useState(true);
@@ -30,6 +33,38 @@ const SchemeList = () => {
       const res = await axios.get('http://localhost:5001/api/schemes/all-applications');
       setApplications(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error("Error fetching applications:", err); }
+  };
+
+  // --- NEW DOWNLOAD LOGIC ---
+  const downloadCSV = () => {
+    if (applications.length === 0) return;
+
+    // 1. Define Headers
+    const headers = ["Farmer Email", "Scheme Name", "Land Size (Acres)", "Applied Date"];
+    
+    // 2. Map data to rows
+    const rows = applications.map(app => [
+      app.farmerEmail,
+      app.schemeName,
+      app.landSize,
+      new Date(app.appliedAt).toLocaleDateString()
+    ]);
+
+    // 3. Combine into CSV string
+    const csvContent = [
+      headers.join(","), 
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    // 4. Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `AgriWise_Applications_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleAdd = async (e) => {
@@ -84,7 +119,7 @@ const SchemeList = () => {
 
             <div className="grid gap-4">
               {loading ? <p className="text-center text-slate-400">Loading schemes...</p> : schemes.map(scheme => (
-                <div key={scheme._id} className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm flex justifying-between items-center">
+                <div key={scheme._id} className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
                   <div className="flex-1">
                     <h3 className="font-bold text-lg text-slate-900">{scheme.name}</h3>
                     <p className="text-emerald-600 font-medium">{scheme.benefit}</p>
@@ -98,34 +133,47 @@ const SchemeList = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 border-b border-slate-100">
-                <tr>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Farmer Email</th>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Scheme</th>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Land Size</th>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {applications.length === 0 ? (
-                  <tr><td colSpan="4" className="p-20 text-center text-slate-400 font-bold">No applications found.</td></tr>
-                ) : applications.map((app) => (
-                  <tr key={app._id} className="hover:bg-emerald-50/20 transition-colors">
-                    <td className="p-6 flex items-center gap-3">
-                      <div className="p-2 bg-slate-100 rounded-lg text-slate-400"><Mail size={14} /></div>
-                      <span className="font-bold text-slate-700">{app.farmerEmail}</span>
-                    </td>
-                    <td className="p-6 font-bold">{app.schemeName}</td>
-                    <td className="p-6 font-black text-emerald-600 tracking-tighter">{app.landSize} acres</td>
-                    <td className="p-6 text-slate-400 text-xs font-medium flex items-center gap-1">
-                      <Clock size={12} /> {new Date(app.appliedAt).toLocaleDateString()}
-                    </td>
+          <div className="space-y-6">
+            {/* NEW DOWNLOAD BUTTON SECTION */}
+            <div className="flex justify-end">
+              <button 
+                onClick={downloadCSV}
+                disabled={applications.length === 0}
+                className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={18} /> Download CSV Report
+              </button>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Farmer Email</th>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Scheme</th>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Land Size</th>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {applications.length === 0 ? (
+                    <tr><td colSpan="4" className="p-20 text-center text-slate-400 font-bold">No applications found.</td></tr>
+                  ) : applications.map((app) => (
+                    <tr key={app._id} className="hover:bg-emerald-50/20 transition-colors">
+                      <td className="p-6 flex items-center gap-3">
+                        <div className="p-2 bg-slate-100 rounded-lg text-slate-400"><Mail size={14} /></div>
+                        <span className="font-bold text-slate-700">{app.farmerEmail}</span>
+                      </td>
+                      <td className="p-6 font-bold">{app.schemeName}</td>
+                      <td className="p-6 font-black text-emerald-600 tracking-tighter">{app.landSize} acres</td>
+                      <td className="p-6 text-slate-400 text-xs font-medium flex items-center gap-1">
+                        <Clock size={12} /> {new Date(app.appliedAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

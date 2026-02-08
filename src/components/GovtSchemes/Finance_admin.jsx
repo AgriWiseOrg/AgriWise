@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
-  ChevronLeft, Plus, Trash2, X, LayoutDashboard, Settings, Mail, Clock 
+  ChevronLeft, Plus, Trash2, X, LayoutDashboard, Settings, Mail, Clock, Download 
 } from 'lucide-react';
 
 const FinanceAdmin = () => {
   const navigate = useNavigate();
   const [schemes, setSchemes] = useState([]);
-  const [requests, setRequests] = useState([]); // State for farmer applications
-  const [activeTab, setActiveTab] = useState('manager'); // Toggle state
+  const [requests, setRequests] = useState([]); 
+  const [activeTab, setActiveTab] = useState('manager'); 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newScheme, setNewScheme] = useState({ name: '', type: '', interest: '', color: 'indigo' });
 
@@ -30,6 +30,42 @@ const FinanceAdmin = () => {
       const res = await axios.get('http://localhost:5001/api/finance/all');
       setRequests(res.data);
     } catch (err) { console.error(err); }
+  };
+
+  // --- CSV Export Logic ---
+  const downloadCSV = () => {
+    if (requests.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    // Define CSV Headers
+    const headers = ["Farmer Email", "Scheme Name", "Interest Rate", "Applied Date"];
+    
+    // Map data to CSV rows
+    const rows = requests.map(req => [
+      req.farmerEmail,
+      `"${req.schemeName}"`, // Quotes handle commas in names
+      req.interestRate,
+      new Date(req.appliedAt).toLocaleDateString()
+    ]);
+
+    // Construct the string
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(e => e.join(","))
+    ].join("\n");
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `AgriWise_Farmer_Requests_${new Date().toLocaleDateString()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleAdd = async (e) => {
@@ -109,38 +145,49 @@ const FinanceAdmin = () => {
           </div>
         ) : (
           /* APPLICATIONS DASHBOARD VIEW */
-          <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 border-b border-slate-100">
-                <tr>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Farmer Email</th>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Requested Scheme</th>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Interest Rate</th>
-                  <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Applied On</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {requests.length === 0 ? (
-                   <tr><td colSpan="4" className="p-20 text-center text-slate-400 font-bold">No applications found in database.</td></tr>
-                ) : requests.map((req) => (
-                  <tr key={req._id} className="hover:bg-indigo-50/20 transition-colors">
-                    <td className="p-6 flex items-center gap-3">
-                      <div className="p-2 bg-slate-100 rounded-lg text-slate-400"><Mail size={14} /></div>
-                      <span className="font-bold text-slate-700">{req.farmerEmail}</span>
-                    </td>
-                    <td className="p-6 font-bold">{req.schemeName}</td>
-                    <td className="p-6 font-black text-indigo-600 tracking-tighter">{req.interestRate}</td>
-                    <td className="p-6 text-slate-400 text-xs font-medium flex items-center gap-1">
-                      <Clock size={12} /> {new Date(req.appliedAt).toLocaleDateString()}
-                    </td>
+          <div className="space-y-6">
+            <div className="flex justify-end">
+              <button 
+                onClick={downloadCSV}
+                className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+              >
+                <Download size={20} /> Export Applications (CSV)
+              </button>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Farmer Email</th>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Requested Scheme</th>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Interest Rate</th>
+                    <th className="p-6 font-black text-slate-400 uppercase text-[10px]">Applied On</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {requests.length === 0 ? (
+                    <tr><td colSpan="4" className="p-20 text-center text-slate-400 font-bold">No applications found in database.</td></tr>
+                  ) : requests.map((req) => (
+                    <tr key={req._id} className="hover:bg-indigo-50/20 transition-colors">
+                      <td className="p-6 flex items-center gap-3">
+                        <div className="p-2 bg-slate-100 rounded-lg text-slate-400"><Mail size={14} /></div>
+                        <span className="font-bold text-slate-700">{req.farmerEmail}</span>
+                      </td>
+                      <td className="p-6 font-bold">{req.schemeName}</td>
+                      <td className="p-6 font-black text-indigo-600 tracking-tighter">{req.interestRate}</td>
+                      <td className="p-6 text-slate-400 text-xs font-medium flex items-center gap-1">
+                        <Clock size={12} /> {new Date(req.appliedAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* Modal Logic (Same as your current one) */}
+        {/* Modal Logic */}
         {showAddForm && (
           <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
