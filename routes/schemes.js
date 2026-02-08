@@ -72,4 +72,25 @@ router.get('/all-applications', async (req, res) => {
   }
 });
 
+// 7. Cancel Application
+router.delete('/cancel/:farmerEmail/:schemeId', async (req, res) => {
+  try {
+    const { farmerEmail, schemeId } = req.params;
+
+    const deletedApp = await SchemeApplication.findOneAndDelete({
+      farmerEmail,
+      schemeId
+    });
+
+    if (!deletedApp) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    res.json({ message: "Application cancelled successfully" });
+  } catch (err) {
+    console.error("Scheme Cancellation Error:", err);
+    res.status(500).json({ error: "Failed to cancel application" });
+  }
+});
+
 module.exports = router;
