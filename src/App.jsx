@@ -23,6 +23,7 @@ import Features from './components/Features';
 import Privacy from './components/Privacy';
 import Contact from './components/Contact';
 
+
 // Epic 6: Govt Schemes Subpages - Split into Admin/Farmer
 import FarmingTipsAdmin from './components/GovtSchemes/FarmingTips_admin';
 import FarmingTipsFarmer from './components/GovtSchemes/FarmingTips_farmer';
@@ -34,6 +35,7 @@ import SchemeListFarmer from './components/GovtSchemes/SchemeList_farmer';
 // RBAC Components
 import FinanceAdmin from './components/GovtSchemes/Finance_admin';
 import FinanceFarmer from './components/GovtSchemes/Finance_farmer';
+import BuyerFrontPage from './components/BuyerFrontPage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -72,11 +74,21 @@ function App() {
               element={!user ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />}
             />
 
-            {/* Logic: If user is logged in, '/' goes to Dashboard (FrontPage).
+            {/* Logic: If user is logged in, '/' goes to Dashboard (FrontPage/BuyerFrontPage).
                 If NOT logged in, '/' goes to Landing Page. */}
             <Route
               path="/"
-              element={user ? <FrontPage onLogout={handleLogout} /> : <LandingPage />}
+              element={
+                user ? (
+                  user.role === 'buyer' ? (
+                    <BuyerFrontPage onLogout={handleLogout} />
+                  ) : (
+                    <FrontPage onLogout={handleLogout} />
+                  )
+                ) : (
+                  <LandingPage />
+                )
+              }
             />
 
             {/* Public Page Routes */}
