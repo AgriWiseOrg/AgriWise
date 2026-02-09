@@ -1,0 +1,76 @@
+[2026-02-09T18:56:20.675Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "Test Runner",
+    "buyerName": "Test Buyer",
+    "orderId": "ORD123",
+    "issue": "payment",
+    "details": "Test details"
+  }
+}
+[2026-02-09T18:58:36.081Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "gvjhk",
+    "buyerName": "Current Buyer",
+    "orderId": "hjbk",
+    "issue": "weight",
+    "details": "hbkjl"
+  }
+}
+[2026-02-09T19:24:39.506Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "vushuy h",
+    "email": "buytre@gmail.com",
+    "buyerName": "Current Buyer",
+    "orderId": "w3456",
+    "issue": "quality",
+    "details": "wert"
+  }
+}
+[2026-02-09T19:32:30.587Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "fhgjhkl",
+    "email": "bfarnt@gmail.com",
+    "buyerName": "fhgjhkl",
+    "orderId": "cv bhjnkm",
+    "issue": "price",
+    "details": "ydftfyuguhi"
+  }
+}
+[2026-02-09T19:33:32.991Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "fhgjhkl",
+    "email": "bfarnt@gmail.com",
+    "buyerName": "fhgjhkl",
+    "orderId": "cv bhjnkm",
+    "issue": "price",
+    "details": "ydftfyuguhi"
+  }
+}
+[2026-02-09T19:40:48.895Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "chgf",
+    "email": "bfarnt@gmail.com",
+    "buyerName": "chgf",
+    "orderId": "34567890",
+    "issue": "delivery",
+    "details": "dxgfhjk"
+  }
+}
+[2026-02-09T19:48:01.952Z] {
+  "type": "dispute_attempt",
+  "body": {
+    "name": "Anonymous Reporter",
+    "email": "hfkjdjb@gmail.com",
+    "userEmail": "hfkjdjb@gmail.com",
+    "buyerName": "gvhjkl",
+    "orderId": "vjbhk",
+    "issue": "price",
+    "details": "hcgjkl"
+  }
+}
