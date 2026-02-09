@@ -1,0 +1,56 @@
+DIAGNOSTIC REPORT
+Wheat Count: 47
+Apple Count: 48
+Wheat Samples: [
+  {
+    "_id": "69897835dd56a31e8bdf2bff",
+    "crop": "Wheat",
+    "market": "Beawar",
+    "state": "Rajasthan",
+    "price": 2500,
+    "date": "2025-05-18T18:30:00.000Z",
+    "trend": "up",
+    "__v": 0
+  },
+  {
+    "_id": "69897835dd56a31e8bdf2c46",
+    "crop": "Wheat",
+    "market": "Babrala",
+    "state": "Uttar Pradesh",
+    "price": 2450,
+    "date": "2025-05-18T18:30:00.000Z",
+    "trend": "down",
+    "__v": 0
+  },
+  {
+    "_id": "69897835dd56a31e8bdf2c61",
+    "crop": "Wheat",
+    "market": "Awagarh",
+    "state": "Uttar Pradesh",
+    "price": 2440,
+    "date": "2025-05-18T18:30:00.000Z",
+    "trend": "up",
+    "__v": 0
+  },
+  {
+    "_id": "69897835dd56a31e8bdf2c62",
+    "crop": "Wheat",
+    "market": "Kishunpur",
+    "state": "Uttar Pradesh",
+    "price": 2450,
+    "date": "2025-05-18T18:30:00.000Z",
+    "trend": "down",
+    "__v": 0
+  },
+  {
+    "_id": "69897835dd56a31e8bdf2c6a",
+    "crop": "Wheat",
+    "market": "Maigalganj",
+    "state": "Uttar Pradesh",
+    "price": 2450,
+    "date": "2025-05-18T18:30:00.000Z",
+    "trend": "stable",
+    "__v": 0
+  }
+]
+Distinct Crops: Ajwan, Alsandikai, Amaranthus, Amla(Nelli Kai), Amphophalus, Amranthas Red, Apple, Apricot(Jardalu/Khumani), Arecanut(Betelnut/Supari), Arhar (Tur/Red Gram)(Whole)
