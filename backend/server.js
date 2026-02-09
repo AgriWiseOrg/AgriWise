@@ -392,7 +392,13 @@ app.use('/api/products', productRoutes);
 
 
 // ================= SERVER START =================
+// ================= SERVER START =================
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
-);
+
+if (require.main === module) {
+  app.listen(PORT, () =>
+    console.log(`🚀 Server running on http://localhost:${PORT}`)
+  );
+}
+
+module.exports = app;

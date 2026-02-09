@@ -17,10 +17,10 @@ const PredictionEngine = {
      * @returns {number} Final predicted price
      */
     addSeasonality: (basePrice, dayIndex, params = {}) => {
-        const volatility = params.volatility || 0.03; // 3% default volatility
-        const waveAmplitude = params.amplitude || (basePrice * 0.05); // 5% amplitude
-        const waveFrequency = params.frequency || 0.1;
-        const phaseShift = params.phase || 0;
+        const volatility = params.volatility ?? 0.03; // 3% default volatility
+        const waveAmplitude = params.amplitude ?? (basePrice * 0.05); // 5% amplitude
+        const waveFrequency = params.frequency ?? 0.1;
+        const phaseShift = params.phase ?? 0;
 
         // Cyclic seasonality (Sine wave)
         const seasonality = waveAmplitude * Math.sin((waveFrequency * dayIndex) + phaseShift);
