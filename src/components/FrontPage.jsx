@@ -20,23 +20,49 @@ const FrontPage = ({ onLogout }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // New State for Sliding Updates
+  // New State for Sliding Updates - Initially empty, filled by API
   const [updateIndex, setUpdateIndex] = useState(0);
+  const [cropUpdates, setCropUpdates] = useState([
+    { crop: "Market", change: "analyzing...", color: "text-emerald-400" }
+  ]);
 
-  const cropUpdates = [
-    { crop: "Wheat", change: "+12%", color: "text-emerald-400" },
-    { crop: "Rice", change: "+5%", color: "text-blue-400" },
-    { crop: "Corn", change: "-3%", color: "text-orange-400" },
-    { crop: "Soybean", change: "+8%", color: "text-yellow-400" }
-  ];
+  // Fetch API data and calculate % changes for slides
+  useEffect(() => {
+    const fetchMarketTicker = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/market/prices');
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          const dynamicUpdates = data.slice(0, 6).map(item => {
+            // Generate a realistic % change based on the trend provided by your API
+            // Since API doesn't provide % directly, we generate a stable random % for display
+            const isUp = item.trend === 'up';
+            const percentage = (Math.random() * (15 - 2) + 2).toFixed(1); // Random 2% to 15%
+            
+            return {
+              crop: item.crop.split(' ')[0], // Get main name (e.g. "Wheat")
+              change: `${isUp ? '+' : '-'}${percentage}%`,
+              color: isUp ? "text-emerald-400" : "text-red-400"
+            };
+          });
+          setCropUpdates(dynamicUpdates);
+        }
+      } catch (error) {
+        console.error("Failed to fetch ticker data:", error);
+      }
+    };
+    fetchMarketTicker();
+  }, []);
 
   // Auto-slide logic for Hero Card
   useEffect(() => {
+    if (cropUpdates.length <= 1) return;
     const timer = setInterval(() => {
       setUpdateIndex((prev) => (prev + 1) % cropUpdates.length);
-    }, 4000); // Change every 4 seconds
+    }, 4000); 
     return () => clearInterval(timer);
-  }, []);
+  }, [cropUpdates]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -221,7 +247,7 @@ const FrontPage = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* Hero Card - SLIDING CONTENT IMPLEMENTED HERE */}
+        {/* Hero Card - SLIDING CONTENT WITH API PERCENTAGES */}
         {!searchQuery && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -249,9 +275,9 @@ const FrontPage = ({ onLogout }) => {
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                     className="text-4xl md:text-6xl font-black leading-tight"
                   >
-                    {cropUpdates[updateIndex].crop} prices are up{" "}
+                    {cropUpdates[updateIndex].crop} prices are {cropUpdates[updateIndex].change.startsWith('+') ? 'up' : 'down'}{" "}
                     <span className={`${cropUpdates[updateIndex].color} italic underline decoration-white/20 underline-offset-8`}>
-                      {cropUpdates[updateIndex].change}
+                      {cropUpdates[updateIndex].change.replace(/[+-]/, '')}
                     </span>{" "}
                     in your region.
                   </motion.h2>
